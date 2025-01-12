@@ -1,1 +1,28 @@
-/Manifest.toml
+/KalmanFilters.jl/Manifest.toml
+/MetropolisHastings.jl/Manifest.toml
+/MultitypeBranchingProcesses.jl/Manifest.toml
+
+**/deps/Manifest.toml
+
+# figs
+**/**.png
+**/**.pdf
+**/**.log
+
+# data
+**/**.rds
+**/**.csv
+**/**.bin
+**/**.info.txt
+
+# settings
+**/**.vscode
+**/**.DS_Store
+
+# latex
+**/**.aux
+**/**.fdb_latexmk
+**/**.fls
+**/**.log
+**/**.gz
+

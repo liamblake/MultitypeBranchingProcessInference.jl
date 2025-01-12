@@ -1,0 +1,22 @@
+name = "KalmanFilters"
+uuid = "87bd2298-8e87-4e6e-a3ab-44099389f11c"
+authors = ["angus-lewis <angus.lewis@adelaide.edu.au> and contributors"]
+version = "1.0.0-DEV"
+
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[compat]
+Distributions = "0.25.115"
+LinearAlgebra = "1.11.0"
+StableRNGs = "1.0.2"
+julia = "1.6.7"
+
+[extras]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "Distributions", "StableRNGs"]

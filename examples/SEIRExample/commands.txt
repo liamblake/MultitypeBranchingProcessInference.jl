@@ -1,0 +1,11 @@
+julia --project=../. benchmark.jl config.yaml
+
+julia --project=../. simulate.jl config.yaml
+julia --project=../. state_inference.jl config.yaml
+
+for case in cases
+    julia --project=../. inference.jl config_$case.yaml
+end
+
+julia --project=../. analysis.jl config.yaml "name1=dataset1.bin" "name2=dataset2.bin"
+

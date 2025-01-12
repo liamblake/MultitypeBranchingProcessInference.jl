@@ -1,0 +1,375 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts}
+
+\title{MTBP Variance}
+\author{Angus Lewis}
+\begin{document}
+\maketitle
+\newcommand{\Cov}[1]{\mathrm{Cov}\left(#1\right)}
+\newcommand{\Var}[1]{\mathrm{Var}\left(#1\right)}
+\newcommand{\Ex}[1]{\mathbb{E}\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Exp}[1]{e^{#1}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\direction}[1]{\bs{e}_{#1}}
+\newcommand{\tr}{^{*}}
+\newcommand{\Matrix}[2]{\left[\begin{array}{#1}#2\end{array}\right]}
+\newcommand{\diag}[1]{\mathrm{diag}\left(#1\right)}
+
+\begin{align}
+    \bs m(t) &= \Ex{\bs Z(t)|\bs Z(0)=\bs z} = \bs z \Exp{\Omega t}
+    \\ V_i(t) &= \Cov{\bs Z(t)|\bs Z(0)=\direction{i}} 
+\end{align}
+
+\begin{align}
+    V_{i_0}(t+\tau) &= \Cov{\bs Z(t+\tau)|\bs Z(0)=\direction{i_0}} 
+    %   
+    \\&=\Cov{\Ex{\bs Z(t+\tau)|\bs Z(t)}|\bs Z(0)=\direction{i_0}}   
+    + \Ex{\Cov{\bs Z(t+\tau)|\bs Z(t)}|\bs Z(0)=\direction{i_0}}
+    %   
+    \\&=\Cov{\bs Z(t) \Exp{\Omega \tau}|\bs Z(0)=\direction{i_0}}   
+    + \Ex{\sum_{i=1}^p \left[\bs Z(t)\right]_i V_i(\tau)|\bs Z(0)=\direction{i_0}}
+    %   
+    \\&=\Exp{\Omega\tr \tau}\Cov{\bs Z(t)|\bs Z(0)=\direction{i_0}}\Exp{\Omega \tau}
+    + \sum_{i=1}^p \Ex{\left[\bs Z(t)\right]_i|\bs Z(0)=\direction{i_0}} V_i(\tau)
+    %   
+    \\&=\Exp{\Omega\tr \tau}V_{i_0}(t)\Exp{\Omega \tau}
+    + \sum_{i=1}^p \left[\bs m(t)\right]_i V_i(\tau)
+    %   
+    \\&=\Exp{\Omega\tr \tau}V_{i_0}(t)\Exp{\Omega \tau}
+    + \sum_{i=1}^p \left[\direction{i_0}\Exp{\Omega t}\right]_i V_i(\tau)
+\end{align}
+
+\begin{align}
+    \sum_{i=1}^p \left[\bs z\right]_i V_i(t+\tau) &= \Cov{\bs Z(t+\tau)|\bs Z(0)=\bs z} 
+    %
+    \\&=\Exp{\Omega\tr \tau}\sum_{i=1}^p \left[\bs z\right]_i V_{i}(t)\Exp{\Omega \tau}
+    + \sum_{i=1}^p \left[\bs z\Exp{\Omega t}\right]_i V_i(\tau)
+\end{align}
+
+\begin{align}
+    \sum_{i=1}^p \left[\bs z\right]_i V_i(2t) &= \Cov{\bs Z(2t)|\bs Z(0)=\bs z} 
+    %
+    \\&=\Exp{\Omega\tr t}\sum_{i=1}^p \left[\bs z\right]_i V_{i}(t)\Exp{\Omega t}
+    + \sum_{i=1}^p \left[\bs z\Exp{\Omega t}\right]_i V_i(t)
+\end{align}
+
+\begin{align}
+    &\int_{\tau=0}^t \Exp{\Omega \tau} \otimes \Exp{\Omega\tr(t-\tau)} \otimes \Exp{\Omega\tr(t-\tau)} d \tau
+    %
+    \\&=\int_{\tau=0}^t \Exp{\Omega \tau} \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)(t-\tau)} d \tau
+    %
+    \\&=\int_{\tau=0}^t \Exp{\Omega \tau} \otimes \left(\Exp{\left(\Omega\tr \oplus \Omega\tr\right)(-\tau)}\Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right) d \tau \,  
+    %
+    \\&=\int_{\tau=0}^t \left(\Exp{\Omega \tau}\times I_p \right)\otimes \left(\Exp{\left(\Omega\tr \oplus \Omega\tr\right)(-\tau)}\Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right) d \tau \,  
+    %
+    \\&=\int_{\tau=0}^t \left(\Exp{\Omega \tau}\otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)(-\tau)} \right)\left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right) d \tau \,  
+    %
+    \\&=\int_{\tau=0}^t \left(\Exp{\Omega \tau}\otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)(-\tau)} \right) d \tau \,  \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)
+    %
+    \\&=\int_{\tau=0}^t \left(\Exp{\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)\tau} \right) d \tau \,  \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\Exp{\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)\tau} \right]_{\tau=0}^t \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\Exp{\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)t}-I_{3p} \right] \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\Exp{\Omega t} \otimes \Exp{\left(\Omega\tr \oplus -\Omega\tr\right)(-t)}-I_{3p} \right] \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\left[\Exp{\Omega t} \otimes \Exp{\left(\Omega\tr \oplus -\Omega\tr\right)(-t)}\right] \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right) - \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)\right]
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\left(\Exp{\Omega t} \times I_p\right)\otimes\left(\Exp{\left(\Omega\tr \oplus -\Omega\tr\right)(-t)} \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right) - \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)\right]
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\left(\Exp{\Omega t} \times I_p\right)\otimes\left(I_{2p}\right) - \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)\right]
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\Exp{\Omega t}\otimes I_{2p} - \left(I_p \otimes \Exp{\left(\Omega\tr \oplus \Omega\tr\right)t}\right)\right]
+    %
+    \\&=\left(\Omega \oplus -\Omega\tr \oplus -\Omega\tr\right)^{-1} \left[\Exp{\Omega t}\otimes I_{2p} - \left(I_p \otimes \Exp{\Omega\tr t} \otimes \Exp{\Omega\tr t}\right)\right]
+    %
+    \\&=\left(\Omega \otimes I_{2p} - I_{p}\otimes \left(\Omega\tr \otimes I_p + I_p \otimes \Omega\tr\right)\right)^{-1} \left[\Exp{\Omega t}\otimes I_{2p} - \left(I_p \otimes \Exp{\Omega\tr t} \otimes \Exp{\Omega\tr t}\right)\right]
+    %
+    \\&=\left(\Omega \otimes I_{p} \otimes I_{p} - I_{p}\otimes \Omega\tr \otimes I_p - I_p \otimes I_p \otimes \Omega\tr\right)^{-1} \left[\Exp{\Omega t}\otimes I_{2p} - \left(I_p \otimes \Exp{\Omega\tr t} \otimes \Exp{\Omega\tr t}\right)\right]
+    %
+    \\&(A\otimes I + I\otimes B)(A^{-1}\otimes I)
+    %
+    \\&=(A\otimes I)(A^{-1}\otimes I) + (I\otimes B)(A^{-1}\otimes I)
+    %
+    \\&=(I\otimes I) + (A^{-1}\otimes B) 
+\end{align}
+
+\begin{align}
+W &= \Matrix{ccccc}{
+    \omega_1 &&&&\\
+    & \omega_2 &&&\\
+    && \ddots &&\\
+    &&& \omega_{p-1} & \\
+    &&&& \omega_p
+} \\
+F &= \Matrix{ccccc}{
+    f_{11} & f_{12} & \hdots & f_{1p-1} & f_{1p} \\
+    f_{21} & f_{22} & \hdots & f_{2p-1} & f_{2p} \\
+    \vdots & \vdots & \ddots & \vdots   & \vdots \\
+    f_{p-11} & f_{p-12} & \hdots & f_{p-1p-1} & f_{p-1p} \\
+    f_{p1} & f_{p2} & \hdots & f_{pp-1} & f_{pp}
+}
+\end{align}
+\begin{align}
+    W_{n+1}FW_{n+1} &= (W_n + E_n)F(W_n + E_n)
+    \\& = W_nFE_n + E_nFE_n + W_nFW_n + E_nFW_n
+    \\(D_1FD_2)(D_3FD_4) &= (D_1FD_3)(D_2FD_4)
+\end{align}
+\begin{align}
+    \Exp{W_{n+1}Ft} &= \Exp{W_nFt + E_nFt}
+\end{align}
+
+\begin{align}
+    Vec[V(t)]=Vec\left[\int_{\tau=0}^t  \Exp{\left(\Omega\tr \oplus \Omega\tr\right)(t-\tau)} C \Exp{\Omega\tr \tau} d \tau \right]\,
+\end{align}
+\begin{align}
+    V(t)&=\int_{\tau=0}^t  \Exp{\left(\Omega\tr \oplus \Omega\tr\right)(t-\tau)} C \Exp{\Omega\tr \tau} d \tau 
+    %
+    \\V(t)&=\Matrix{cc}{I & 0}\exp\left({\Matrix{cc}{\Omega^*\oplus\Omega^* & C \\ 0 & \Omega^* }}t\right)\Matrix{c}{0\\I}
+\end{align}
+\begin{align}
+    V_i(t)&=\int_{\tau=0}^t  \sum_{j=1}^p \left[\Exp{\Omega\tr(t-\tau)}\right]_{ij} \Exp{\Omega\tr(t-\tau)} C_j \Exp{\Omega\tr \tau} d \tau 
+    %
+    \\&=\int_{\tau=0}^t \Exp{\Omega\tr(t-\tau)} \sum_{j=1}^p \left[\Exp{\Omega\tr(t-\tau)}\right]_{ij} C_j \Exp{\Omega\tr \tau} d \tau 
+\end{align}
+
+\newpage 
+\begin{align}
+    V(t)&=\int_{\tau=0}^t \Exp{(\Omega\tr \oplus \Omega\tr)(t-\tau)} C \Exp{\Omega\tr \tau} d \tau 
+    % 
+    \\&=\int_{\tau=0}^t \left(\Exp{\Omega\tr (t-\tau)} \otimes \Exp{\Omega\tr(t-\tau)}\right) C \Exp{\Omega\tr \tau} d \tau 
+    % 
+    \\&=\int_{\tau=0}^t \left(\Exp{P^{-1}JP (t-\tau)} \otimes \Exp{P^{-1}JP(t-\tau)}\right) C \Exp{P^{-1}JP \tau} d \tau 
+    % 
+    \\&=\int_{\tau=0}^t \left(P^{-1}\Exp{J (t-\tau)}P \otimes P^{-1}\Exp{J(t-\tau)}P\right) C P^{-1}\Exp{J \tau} P d \tau 
+    % 
+    \\&=\int_{\tau=0}^t \left(P^{-1} \otimes P^{-1}\right) \left(\Exp{J (t-\tau)}\otimes \Exp{J(t-\tau)}\right) \left(P \otimes P\right) C P^{-1}\Exp{J \tau} P d \tau 
+    % 
+    \\&=\left(P^{-1} \otimes P^{-1}\right) \int_{\tau=0}^t \left(\Exp{J (t-\tau)}\otimes \Exp{J(t-\tau)}\right) \overline C \Exp{J \tau} d \tau P,
+\end{align}
+where \(\overline C = \left(P \otimes P\right) C P^{-1}\). Now, 
+\begin{align}
+    \Exp{J (t-\tau)}\otimes \Exp{J(t-\tau)}
+    &= \diag{\Exp{J_j (t-\tau)},j=1,...,q}\otimes \Exp{J(t-\tau)}
+    %
+    \\&= \diag{\Exp{J_j (t-\tau)}\otimes \Exp{J(t-\tau)},j=1,...,q}.
+\end{align}
+Also, observe 
+\begin{align}
+    \overline C &= \left(P \otimes P\right) C P^{-1}
+    %
+    \\&= \Matrix{ccc}{P_{11}P & \hdots & P_{1p}P \\ \vdots & & \vdots \\ P_{p1}P & \hdots & P_{pp}P} \Matrix{c}{C_1 \\ \vdots \\ C_p} P^{-1}
+    %
+    \\&= \Matrix{ccc}{P_{11}P & \hdots & P_{1p}P \\ \vdots & & \vdots \\ P_{p1}P & \hdots & P_{pp}P} \Matrix{c}{C_1 \\ \vdots \\ C_p} P^{-1}
+    %
+    \\&= \Matrix{c}{\displaystyle \sum_{j=1}^p P_{1j} P C_j P^{-1} \\ \vdots \\ \displaystyle \sum_{j=1}^p P_{pj} P C_j P^{-1}}
+\end{align}
+and let \(\overline C_i = \displaystyle \sum_{j=1}^p P_{ij} P C_j P^{-1}\). So
+\begin{align}
+    \left(\Exp{J (t-\tau)}\otimes \Exp{J(t-\tau)}\right) \overline C \Exp{J(t-\tau)}
+    &= \Matrix{c}{
+        \displaystyle \sum_{k=1}^p\left[\Exp{J(t-\tau)}\right]_{1k} \Exp{J(t-\tau)}\overline C_k\Exp{J\tau} \\
+        \vdots \\ 
+        \displaystyle \sum_{k=1}^p\left[\Exp{J(t-\tau)}\right]_{pk} \Exp{J(t-\tau)}\overline C_k\Exp{J\tau}
+    }.
+\end{align}
+Partition \(\overline C_k\) into \(q\) blocks, \(\overline C_k^{m,n}\), of size \(\ell_m\times \ell_n,\, m,n=1,...,q\)
+\[\overline C_k = \Matrix{ccc}{
+    \overline{C}_k^{1,1} & \hdots & \overline{C}_k^{1,p} \\
+    \vdots & & \vdots \\
+    \overline{C}_k^{p,1} & \hdots & \overline{C}_k^{p,p}
+}\]
+then 
+\begin{align}
+    \Exp{J(t-\tau)}\overline C_k\Exp{J\tau} &= \Matrix{ccc}{
+        \Exp{J_1(t-\tau)} \overline{C}_k^{1,1} \Exp{J_1\tau} & \hdots & \Exp{J_1(t-\tau)} \overline{C}_k^{1,q} \Exp{J_q\tau}\\
+        \vdots & & \vdots \\
+        \Exp{J_q(t-\tau)} \overline{C}_k^{q,1} \Exp{J_1\tau} & \hdots & \Exp{J_q(t-\tau)} \overline{C}_k^{q,q} \Exp{J_q\tau}
+    }.
+\end{align}
+Each block is of the form
+\begin{align}
+    \Exp{J_m(t-\tau)} \overline{C}_k^{m,n} \Exp{J_n\tau} 
+    &= \Exp{\lambda_m(t-\tau)}\Exp{N_m(t-\tau)} \overline{C}_k^{m,n} \Exp{\lambda_n\tau}\Exp{N_n\tau}
+    %
+    \\&= \Exp{\lambda_m t}\Exp{(\lambda_n-\lambda_m)\tau}\Exp{N_m(t-\tau)} \overline{C}_k^{m,n} \Exp{N_n\tau}.
+\end{align}
+The matrix \(\Exp{N_m(t-\tau)}\) is 
+\begin{align}
+    \Exp{N_m(t-\tau)} &= \Matrix{cccc}{
+        1 & (t-\tau) & \hdots & (t-\tau)^{\ell_m-1} \\ 
+        & \ddots & \ddots & \vdots \\
+        & & \ddots & (t-\tau) \\
+        &&& 1
+    } 
+\end{align}
+with entires \(\left[\Exp{N_m(t-\tau)}\right]_{i,j}=1(j\geq i)(t-\tau)^{j-i}\). Similarly, the matrix \(\Exp{N_n\tau}\) is 
+\begin{align}
+    \Exp{N_n\tau} &= \Matrix{cccc}{
+        1 & \tau & \hdots & \tau^{\ell_n-1} \\ 
+        & \ddots & \ddots & \vdots \\
+        & & \ddots & \tau \\
+        &&& 1
+    } 
+\end{align}
+with entires \(\left[\Exp{N_n\tau}\right]_{i,j}=1(j\geq i)\tau^{j-i}\).
+So 
+\begin{align}
+    \left[\Exp{N_m(t-\tau)} \overline{C}_k^{m,n} \Exp{N_n\tau}\right]_{i_0,i_3} 
+    &= \sum_{i_1=1}^{\ell_m}\sum_{i_2=1}^{\ell_n} \left[\Exp{N_m(t-\tau)}\right]_{i_0,i_1} \left[\overline{C}_k^{m,n}\right]_{i_1,i_2} \left[\Exp{N_n\tau}\right]_{i_2,i_3}
+    % 
+    \\&= \sum_{i_1=1}^{\ell_m}\sum_{i_2=1}^{\ell_n} 1(i_1\geq i_0)(t-\tau)^{i_1-i_0} \left[\overline{C}_k^{m,n}\right]_{i_1,i_2} 1(i_3\geq i_2)\tau^{i_3-i_2}
+\end{align}
+Now, 
+\begin{align}
+    &\left[\left[\Exp{J(t-\tau)}\right]_{ik} \Exp{J_m(t-\tau)} \overline{C}_k^{m,n} \Exp{J_n\tau} \right]_{i_0,i_3}
+    \\&= 1(S_r+\ell_{r}> k\geq i)\Exp{\lambda_r (t-\tau)}(t-\tau)^{k-i}
+    \\&\quad\times\Exp{\lambda_m t}\Exp{(\lambda_n-\lambda_m)\tau}\sum_{i_1=1}^{\ell_m}\sum_{i_2=1}^{\ell_n} 1(i_1\geq i_0)(t-\tau)^{i_1-i_0} \left[\overline{C}_k^{m,n}\right]_{i_1,i_2} 1(i_3\geq i_2)\tau^{i_3-i_2},
+    %
+    \\&= \sum_{i_1=1}^{\ell_m}\sum_{i_2=1}^{\ell_n}1(S_r+\ell_{r}> k\geq i)1(i_1\geq i_0)1(i_3\geq i_2)\left[\overline{C}_k^{m,n}\right]_{i_1,i_2}
+    \\&\quad\times\Exp{(\lambda_m+\lambda_r) t}\Exp{(\lambda_n-\lambda_m-\lambda_r)\tau} (t-\tau)^{k-i+i_1-i_0}\tau^{i_3-i_2} ,
+    %
+    \\&= \sum_{i_1=i_0}^{\ell_m}\sum_{i_2=1}^{i_3}1(S_r+\ell_{r}> k\geq i)\left[\overline{C}_k^{m,n}\right]_{i_1,i_2}
+    \\&\quad\times\Exp{(\lambda_m+\lambda_r) t}\Exp{(\lambda_n-\lambda_m-\lambda_r)\tau} (t-\tau)^{k-i+i_1-i_0}\tau^{i_3-i_2},
+\end{align}
+where \(r\) is the smallest integer such that \(\displaystyle \sum_{b=1}^r \ell_b \geq i\) and \(S_r = \sum_{b=1}^{r-1} \ell_b\). Finally, with \(t=1\) and taking the integral, 
+\begin{align}
+    &\int_{\tau=0}^1\sum_{i_1=i_0}^{\ell_m}\sum_{i_2=1}^{i_3}1(S_r+\ell_{r}> k\geq i)\left[\overline{C}_k^{m,n}\right]_{i_1,i_2}
+    \\&\quad\times\Exp{(\lambda_m+\lambda_r)}\Exp{(\lambda_n-\lambda_m-\lambda_r)\tau} (1-\tau)^{k-i+i_1-i_0}\tau^{i_3-i_2}d\tau
+    %
+    \\&=\sum_{i_1=i_0}^{\ell_m}\sum_{i_2=1}^{i_3}1(S_r+\ell_{r}> k\geq i)\left[\overline{C}_k^{m,n}\right]_{i_1,i_2}
+    \\&\quad\times\Exp{(\lambda_m+\lambda_r)}\int_{\tau=0}^1\Exp{(\lambda_n-\lambda_m-\lambda_r)\tau} (1-\tau)^{k-i+i_1-i_0}\tau^{i_3-i_2}d\tau.
+\end{align}
+Now, let \(\lambda = (\lambda_n-\lambda_m-\lambda_r),\, a=k-i+i_1-i_0,\, b=i_3-i_2\), then the integral above is 
+\begin{align}
+    f(\lambda, a, b)&=\int_{\tau=0}^1\Exp{\lambda \tau} (1-\tau)^{a}\tau^{b}d\tau
+    \\&=\int_{\tau=0}^1\Exp{\lambda \tau} \sum_{w=0}^a\binom{a}{w}(-1)^w\tau^{w+b}d\tau
+    %
+    \\&= \sum_{w=0}^a(-1)^w\binom{a}{w}\int_{\tau=0}^1\Exp{\lambda \tau}\tau^{w+b}d\tau
+    %
+    \\&= \sum_{w=0}^a(-1)^w\binom{a}{w}(-\lambda)^{-(w+b+1)}(\Gamma(w+b+1)-\Gamma(w+b+1,-\lambda)),
+\end{align}
+where \(\Gamma(\cdot)\) and \(\Gamma(\cdot, \cdot)\) are the gamma and incomplete gamma functions, respectively. Since \(b\) is a positive integer this can be written as 
+\begin{align}
+    &\sum_{w=0}^a(-1)^w\binom{a}{w}(-\lambda)^{-(w+b+1)}(w+b)!\left(1 - e^{\lambda}\sum_{v=0}^{w+b}\cfrac{(-\lambda)^v}{v!}\right)
+    %
+    \\&= (-1)^{b+1}\sum_{w=0}^a\binom{a}{w}(w+b)!\left(1 - e^{\lambda}\sum_{v=0}^{w+b}\cfrac{(-\lambda)^{v-(w+b+1)}}{v!}\right).
+\end{align}
+With \(\lambda,\, a\) and \(b\) as above
+\begin{align}
+    &f((\lambda_n-\lambda_m-\lambda_r), k-i+i_1-i_0, i_3-i_2)
+    \\&=(-1)^{i_3-i_2+1}\sum_{w=0}^{k-i+i_1-i_0}\left[\binom{k-i+i_1-i_0}{w}(w+i_3-i_2)!\right.\\&\quad\left.\left(1 - e^{(\lambda_n-\lambda_m-\lambda_r)}\sum_{v=0}^{w+i_3-i_2}\cfrac{(-(\lambda_n-\lambda_m-\lambda_r))^{v-(w+i_3-i_2+1)}}{v!}\right)\right].
+\end{align}
+So 
+\begin{align}
+    &\int_{\tau=0}^1\left[\left[\Exp{J(1-\tau)}\right]_{ik} \Exp{J_m(1-\tau)} \overline{C}_k^{m,n} \Exp{J_n\tau} \right]_{i_0,i_3}
+    %
+    \\&=\sum_{i_1=i_0}^{\ell_m}\sum_{i_2=1}^{i_3}1(S_r+\ell_{r}> k\geq i)\left[\overline{C}_k^{m,n}\right]_{i_1,i_2}
+    \\&\quad\times\Exp{(\lambda_m+\lambda_r)}f((\lambda_n-\lambda_m-\lambda_r), k-i+i_1-i_0, i_3-i_2).
+\end{align}
+
+Solution:
+\begin{itemize}
+    \item Form \(\overline C\) and its sublocks. 
+    \item (Maybe we can compute a matrix \(F\) of \(f\)'s and fill it as an intermediate?)
+    \item Compute the matrix \(B\) of the same size as \(\overline C\) with elements 
+    \[
+        B_{(i-1)p+\sum_{j=1}^{m-1}\ell_j+i_0, \sum_{j=1}^{n-1}\ell_j+i_3}
+    \] 
+    for \(i=1,...,p\), \(m,n=1,...,q\), \(i_0=1,...,\ell_m,\,i_3=1,...,\ell_n\) given by
+    \[
+        \sum_{k=1}^p\sum_{i_1=i_0}^{\ell_m}\sum_{i_2=1}^{i_3}1(S_r+\ell_{r}> k\geq i)\left[\overline{C}_k^{m,n}\right]_{i_1,i_2}
+        \times\Exp{(\lambda_m+\lambda_r)}f((\lambda_n-\lambda_m-\lambda_r), k-i+i_1-i_0, i_3-i_2).
+    \]
+    The matrix \(B\) is the matrix
+    \[
+        \int_{\tau=0}^t \left(\Exp{J (t-\tau)}\otimes \Exp{J(t-\tau)}\right) \overline C \Exp{J \tau} d \tau.
+    \]
+    \item Compute 
+    \[
+        D=\left(P^{-1}\otimes P^{-1}\right)BP,
+    \] by defining 
+    \[
+        B=\Matrix{c}{B_1\\\vdots\\B_p},\quad D=\Matrix{c}{D_1\\\vdots\\D_p},\quad 
+    \]
+    then 
+    \[
+        D_i = \sum_{k=1}^p P^{-1}_{ik}P^{-1}B_kP
+    \]
+\end{itemize}
+
+\begin{align}
+    G_i = \cfrac{\partial^2 P_i(\bs s)}{\partial s_k\partial s_m} + D(f_i) - f_i\tr f_i
+\end{align}
+\begin{align}
+    P_i(\bs s) &= \sum_{\bs j \in \mathbb N^r}p_{i,\bs j}\prod_{\ell=1}^r s_\ell^{j_\ell}
+    \\\cfrac{\partial P_i(\bs s)}{\partial s_k} &= \sum_{\bs j \in \mathbb N^r}p_{i,\bs j}\prod_{\ell\neq k, \ell=1,...,r} s_\ell^{j_\ell} j_k s_k^{j_k-1}1(j_k>0)
+    \\\left.\cfrac{\partial P_i(\bs s)}{\partial s_k}\right|_{\bs s = \bs 1} &= \sum_{\bs j \in \mathbb N^r}p_{i,\bs j} j_k 
+\end{align}
+which is the expected number of progeny of type \(k\) when type \(i\) dies.
+\begin{align}
+    \\\cfrac{\partial^2 P_i(\bs s)}{\partial s_m\partial s_k} &= \begin{cases}
+        \displaystyle \sum_{\bs j \in \mathbb N^r}p_{i,\bs j}\prod_{\ell\neq k,m, \ell=1,...,r} s_\ell^{j_\ell} j_k s_k^{j_k-1}1(j_k>0)j_m s_m^{j_m-1}1(j_m>0) & m\neq k \\
+        \displaystyle \sum_{\bs j \in \mathbb N^r}p_{i,\bs j}\prod_{\ell\neq k \ell=1,...,r} s_\ell^{j_\ell} j_k(j_k-1) s_k^{j_k-2}1(j_k>0) & m=k
+    \end{cases}
+    \\\left.\cfrac{\partial^2 P_i(\bs s)}{\partial s_m\partial s_k}\right|_{\bs s = \bs 1} &= \begin{cases}
+        \displaystyle \sum_{\bs j \in \mathbb N^r}p_{i,\bs j} j_k j_m & m\neq k \\
+        \displaystyle \sum_{\bs j \in \mathbb N^r}p_{i,\bs j} (j_k^2-j_k) & m=k.
+    \end{cases}
+\end{align}
+Hence the matrix 
+\[
+    \left[\cfrac{\partial^2 P_i(\bs s)}{\partial s_m\partial s_k}\right]_{m,k=1,...,p} = \left[\mathbb E[J_mJ_k]-\mathbb E[J_m1(m=k)]\right]_{m,k=1,...,p}
+\]
+
+The moment prodcuts follow the semi-group
+\[
+    \Matrix{c}{m_1(t+s)m_1(t+s)\\m_1(t+s)m_2(t+s)\\\vdots\\m_p(t+s)m_p(t+s)} = \Exp{(\Omega\tr\oplus\Omega\tr)(s)}\Matrix{c}{m_1(t)m_1(t)\\m_1(t)m_2(t)\\\vdots\\m_p(t)m_p(t)}
+\]
+since 
+\begin{align}
+    &Vec\left[\Matrix{c}{m_1(t+s)\\m_2(t+s)\\\hdots\\m_p(t+s)}\Matrix{cccc}{m_1(t+s)&m_2(t+s)&\hdots&m_p(t+s)}\right]
+    \\&=Vec\left[\Exp{\Omega\tr s}\Matrix{c}{m_1(t)\\m_2(t)\\\hdots\\m_p(t)}\Matrix{cccc}{m_1(t)&m_2(t)&\hdots&m_p(t)}\Exp{\Omega s}\right]
+\end{align}
+then apply the rules \(Vec[ABC]=(C\tr\otimes A)Vec[B]\) and \(\Exp{(\Omega\tr\oplus\Omega\tr)(s)}=\Exp{\Omega\tr s}\otimes \Exp{\Omega\tr s}\).
+Hence, the expression for the variance is seen to be a convolution between the moment products and the moments.
+
+For large populations, the branching process becomes slow to simulate, but at the same time, CLT arguments can be used to claim that the population is roughly Gaussian. So consider at time \(t\) we have \(n\) particles \(\bs z_t^{i}\), \(i=1,...,n\) and now the process has become too slow to simulate. The expected population at time \(t+1\) is 
+\begin{align}
+    \Ex{\bs z_{t+1}} &= \Ex{\Ex{\bs z_{t+1}|\bs z_t}}
+    \\&=\Ex{\Exp{\Omega\tr}\bs z_t}
+    \\&=\Exp{\Omega\tr}\Ex{\bs z_t}.
+\end{align}
+The variance is 
+\begin{align}
+    \Var{\bs z_{t+1}} &= \Ex{\Var{\bs z_{t+1}|\bs z_t}} + \Var{\Ex{\bs z_{t+1}|\bs z_t}}
+    \\&=\Ex{\sum_{i=1}^pV_i[\bs z_t]_i} + \Var{\Exp{\Omega\tr}\bs z_t}
+    \\&=\sum_{i=1}^pV_i\Ex{[\bs z_t]_i} + \Exp{\Omega\tr}\Var{\bs z_t}\Exp{\Omega}.
+\end{align}
+We can approximate the expectations and variance-covariance matrix from the samples. 
+
+We do not know the distribution of \(\bs z_{t+1}\), however, for large sample sizes, which we have assumed as we can no longer simulate the process, we can assume that \(\bs z_{t+1}\) is roughly Gaussian. Under this assumption, because the observation model is linear and Gaussian, then the prediction and likelihood distributions are also Gaussian. Moreover, the filtering distribution is also Gaussian and we have the mean and variance of this distribution via a Kalman-filter update.
+
+Now, at time \(t+1\), we want to approximate the likelihood and filtering distributions at time \(t+2\). Using the branching process model, we can update the mean and variance. The expected population at time \(t+2\) is 
+\begin{align}
+    \Ex{\bs z_{t+2}} &= \Ex{\Ex{\bs z_{t+2}|\bs z_{t+1}}}
+    \\&=\Ex{\Exp{\Omega\tr}\bs z_{t+1}}
+    \\&=\Exp{\Omega\tr}\Ex{\bs z_{t+1}}.
+\end{align}
+The variance is 
+\begin{align}
+    \Var{\bs z_{t+2}} &= \Ex{\Var{\bs z_{t+2}|\bs z_{t+1}}} + \Var{\Ex{\bs z_{t+2}|\bs z_{t+1}}}
+    \\&=\Ex{\sum_{i=1}^pV_i[\bs z_{t+1}]_i} + \Var{\Exp{\Omega\tr}\bs z_{t+1}}
+    \\&=\sum_{i=1}^pV_i\Ex{[\bs z_{t+1}]_i} + \Exp{\Omega\tr}\Var{\bs z_{t+1}}\Exp{\Omega}.
+\end{align}
+Now, the expetation and variance of \(\bs z_{t+1}\) are given by the Kalman-filter update. 
+
+We can continue in this way for future steps.
+
+In summary, at time \(t\) we propagate the mean and variance of the branching process to time \(t+1\) using the mean and variance operators of the branching process. Given the mean and variance-covariance at time \(t\), this is simple because the mean and variance-covariance operators for branching processes are linear and because expecation operator is linear and the variance-covariance operator is quadratic. We then assume the distribution at \(t+1\) is Gaussian to calculate the likelihood and filtering distributions and hence their respective means and variance-covariance matrices.
+
+This is what Antonio does in the thesis, but it justifies the mean-field approximation.
+
+\end{document}

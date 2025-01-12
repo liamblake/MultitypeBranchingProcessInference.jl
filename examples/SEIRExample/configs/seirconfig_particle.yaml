@@ -1,0 +1,83 @@
+env: 
+  blas_num_threads: 1
+
+simulation:
+  seed: 12345
+  outfilename: data/seir_sim_particles.Int64.bin
+  tstep: 1
+  nsteps: 50
+
+model:
+  stateprocess:
+    params:
+      E_state_count: 1
+      I_state_count: 1
+      is_time_homogeneous: true
+      # delta = 1/5, mean latence of 5 days
+      exposed_stage_chage_rate: 0.2
+      # beta = R0*lambda = 1.2/14, infection rate
+      infection_rate: 0.08571428571428572
+      # lambda = 1/14, mean infectious period of 14 days
+      infectious_stage_chage_rate: 0.07142857142857142
+      observation_probability: 0.8
+      immigration_rate: [0.5, 0.5]
+    # [E, I, O, R]
+    initial_state: [0, 0, 0, 1]
+  observation:
+    mean: [0.0]
+    cov: [1.0]
+
+inference:
+  likelihood_approx:
+    method: particle_filter
+    switch:
+      threshold: 16
+      seed: 1516171819
+    particle_filter:
+      seed: 67890
+      nparticles: 256
+  prior_parameters:
+    R_0:
+      shape: 4.4
+      scale: 0.5
+    T_E:
+      shape: 100.0
+      scale: 0.05
+    T_I:
+      shape: 30.0
+      scale: 0.5
+  proposal_parameters:
+    mean: [0.0, 0.0, 0.0]
+    cov: [0.05025678291096652, 0.017172993978368013, 0.26586247945859953, 0.017172993978368013, 0.26063693726558, -0.01342786807170479, 0.26586247945859953, -0.01342786807170479, 7.919972456206778]
+  mh_config:
+    seed: 1011121314
+    buffer_size: 16384
+    outfilename: data/seir_particle_param_samples.f64_array.bin
+    max_iters: 200000
+    nparams: 3
+    # max_time_sec: 1500.0
+    max_time_sec: 604800.0
+    # [R_0, T_E, T_I]
+    init_sample: [1.2, 5.0, 14.0]
+    verbose: true
+    infofilename: data/seir_particle.info.txt
+    adaptive: true
+    nadapt: 65536
+    adapt_cov_scale: 0.8
+    continue: false
+
+state_inference:
+  pfseed: 2021222324
+  switchseed: 2526272829
+  threshold: 6
+  nparticles: 32768
+  tsteps: [9, 36, 51]
+
+benchmarks:
+  pfseed: 2021222324
+  switchseed: 2526272829
+  bootseed: 3131323334
+  thresholds: [10, 16]
+  nparticles: [64, 128, 256, 512]
+  nsamples: 512
+  states: [1, 2]

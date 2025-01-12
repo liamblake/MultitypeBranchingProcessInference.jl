@@ -1,0 +1,91 @@
+env: 
+  blas_num_threads: 1
+
+simulation:
+  seed: 12345
+  outfilename: data/se2i2r_sim_particles.int64_array.bin
+  tstep: 1
+  nsteps: 30
+
+model:
+  stateprocess:
+    params:
+      E_state_count: 2
+      I_state_count: 2
+      is_time_homogeneous: false
+      timestamps: [0.0, 10.0]
+      # delta = 1/6, mean latence of 6 days
+      exposed_stage_chage_rate: [0.3333333333333333, 0.3333333333333333]
+      # beta = R0*lambda = 3/12, infection rate
+      infection_rate: [0.25, 0.025]
+      # lambda = 1/12, mean infectious period of 12 days
+      infectious_stage_chage_rate: [0.16666666666666666, 0.16666666666666666]
+      observation_probability: 0.8
+      immigration_rate: [0.0, 0.0, 0.0, 0.0]
+    # [E, E, I, I, O, R]
+    initial_state: [30, 30, 30, 30, 0, 0]
+  observation:
+    mean: [0.0]
+    cov: [1.0]
+
+inference:
+  likelihood_approx:
+    method: hybrid
+    switch:
+      threshold: 10
+      seed: 1516171819
+    particle_filter:
+      seed: 67890
+      nparticles: 256
+  prior_parameters:
+    R_0:
+      shape: 2.5
+      scale: 1.0
+    T_E:
+      shape: 60.0
+      scale: 0.1
+    T_I:
+      shape: 26.0
+      scale: 0.5
+    intervention:
+      time: 
+        lower: 1
+        upper: 31
+      effect:
+        alpha: 1.1
+        beta: 1.5
+  proposal_parameters:
+    mean: [0.0, 0.0, 0.0, 0.0, 0.0]
+    cov: [1.2837017701180853, 0.290737220663126, 1.2806580202715543, -0.008863293146980342, -0.8277080285547781, 0.290737220663126, 0.21357529820017643, -0.1477828735610202, -0.004707003764855956, -0.3131445063089793, 1.2806580202715543, -0.1477828735610202, 5.344966201260238, -0.0006328660165885703, 0.44973680593521337, -0.008863293146980342, -0.004707003764855956, -0.0006328660165885703, 0.00027709766913594145, 0.00558025156711865, -0.8277080285547781, -0.3131445063089793, 0.44973680593521337, 0.00558025156711865, 1.2866831422353715]
+  mh_config:
+    seed: 1011121314
+    buffer_size: 16384
+    outfilename: data/se2i2r_hybrid_threshold_10_param_samples.f64_array.bin
+    max_iters: 600000
+    nparams: 5
+    # max_time_sec: 1500.0
+    max_time_sec: 604800.0 # 1 week!
+    # [R_0, T_E, T_I]
+    init_sample: [3.0, 6.0, 12.0, 0.1, 10.0]
+    verbose: true
+    infofilename: data/se2i2r_hybrid_threshold_10.info.txt
+    adaptive: true
+    nadapt: 65536
+    adapt_cov_scale: 0.8
+    continue: false
+
+state_inference:
+  pfseed: 2021222324
+  switchseed: 2526272829
+  threshold: 30
+  nparticles: 32768
+  tsteps: [9, 31]
+
+benchmarks:
+  pfseed: 2021222324
+  switchseed: 2526272829
+  bootseed: 3031323334
+  thresholds: [10, 20]
+  nparticles: [256, 512, 1024]
+  nsamples: 512
+  states: [1, 3]

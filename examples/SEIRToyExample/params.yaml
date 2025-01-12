@@ -1,0 +1,15 @@
+n_particles: 1000
+seed: 12345
+exposed_stage_chage_rate: 0.05
+infection_rate: 0.04
+# 1/70
+infectious_stage_chage_rate: 0.014285714285714285
+observation_probability: 0.5
+E_immigration_rate: 0.5
+I_immigration_rate: 0.5
+outfilename: particles.Int64.bin
+tstep: 1
+nsteps: 100
+initial_E: 1
+initial_I: 0
+initial_O: 0

@@ -1,6 +1,6 @@
-using MultitypeBranchingProcesses
+using MultitypeBranchingProcessInference
 using Test
 
-@testset "MultitypeBranchingProcesses.jl" begin
-    # Write your tests here.
-end
+using StableRNGs
+
+include("test_loglikelihoods.jl")

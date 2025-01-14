@@ -23,11 +23,22 @@ function itersetup!(
 end
 
 function init!(f::ParticleFilterApproximation, ssm::StateSpaceModel, observation)
-    return init!(f.rng, f.store, ssm, observation, f.thread_info)
+    println("Init PF")
+    ll = init!(f.rng, f.store, ssm, observation, f.thread_info)
+    println(
+        "ESS: ",
+        1/sum((f.store.weights.values/f.store.weights.cumulative[end]).^2)
+    )
+    return ll
 end
 
 function iterate!(
     f::ParticleFilterApproximation, ssm::StateSpaceModel, dt, observation
 )
-    return iterate!(f.rng, f.store, ssm, dt, observation, f.thread_info)
+    ll = iterate!(f.rng, f.store, ssm, dt, observation, f.thread_info)
+    println(
+        "ESS: ",
+        1/sum((f.store.weights.values/f.store.weights.cumulative[end]).^2)
+    )
+    return ll
 end

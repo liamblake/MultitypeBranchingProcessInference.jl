@@ -37,8 +37,8 @@ function rand!(rng::AbstractRNG, m::StateSpaceModel, out)
     return init!(rng, out, m.stateprocess)
 end
 
-function simulatestate!(rng::AbstractRNG, state::AbstractVector, m::StateSpaceModel, t) 
-    return simulate!(rng, state, m.stateprocess, t)
+function simulatestate!(rng::AbstractRNG, state::AbstractVector, m::StateSpaceModel, t, memcache=m.stateprocess._deathdistribution) 
+    return simulate!(rng, state, m.stateprocess, t, memcache)
 end
 
 function logpdf(m::StateSpaceModel, y)

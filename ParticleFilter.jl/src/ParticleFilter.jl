@@ -30,7 +30,10 @@ export Weights,
     vcov,
     gettime,
     getvalue,
-    elementtype
+    elementtype,
+    AbstractThreadInfo, 
+    SingleThreadded,
+    MultiThreadded
 
 include("store.jl")
 include("observations.jl")

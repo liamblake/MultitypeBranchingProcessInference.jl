@@ -4,6 +4,7 @@ function particlefilter!(
     model,
     observations::Observations,
     callback=nothing,
+    thread_info=SingleThreadded(),
     check_inputs=true,
 )
     check_inputs && particlefilter_checks(rng, model, particles)
@@ -11,7 +12,7 @@ function particlefilter!(
     # initialise
     iteration = 1
     obs = first(observations.data)
-    loglikelihood = init!(rng, model, getvalue(obs), particles)
+    loglikelihood = init!(rng, model, getvalue(obs), particles, thread_info)
     prevtime = gettime(obs)
     if callback!==nothing
         callback(particles, model, observations, iteration)
@@ -24,7 +25,7 @@ function particlefilter!(
         dt = currtime - prevtime
         observation = getvalue(obs)
         prevtime = currtime
-        loglikelihood += iterate!(rng, particles, model, dt, observation)
+        loglikelihood += iterate!(rng, particles, model, dt, observation, thread_info)
         if callback!==nothing
             callback(particles, model, observations, iteration)
         end
@@ -37,8 +38,9 @@ function init!(
     particles::ParticleStore, 
     model,
     observation,
+    thread_info=SingleThreadded(),
 )
-    initstate!(rng, particles, model)
+    initstate!(rng, particles, model, thread_info)
     loglikelihood = calcweights!(particles, model, observation)
     resample!(rng, particles)
     return loglikelihood
@@ -50,8 +52,9 @@ function iterate!(
     model,
     dt, 
     observation,
+    thread_info=SingleThreadded(),
 )
-    simulatestate!(rng, particles, model, dt)
+    simulatestate!(rng, particles, model, dt, thread_info)
     loglikelihood = calcweights!(particles, model, observation)
     resample!(rng, particles)
     return loglikelihood

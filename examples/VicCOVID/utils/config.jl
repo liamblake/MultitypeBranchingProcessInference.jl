@@ -6,7 +6,7 @@ function setenvironment!(config)
 end
 
 function makerng(seed)
-    rng = Xoshiro()
+    rng = TaskLocalRNG()
     Random.seed!(rng, seed)
     return rng
 end
@@ -183,19 +183,19 @@ function reset_obs_state_iter_setup!(
     end
 end
 
-function makeloglikelihood(observations, config)
-    nthreads = length(config["inference"]["likelihood_approx"]["particle_filter"]["seed"])
-    if nthreads==1
-        loglikelihood = makesinglethreaddedloglikelihood(observations, config)
-    elseif nthreads > 1
-        loglikelihood = makemultitreaddedloglikelihood(observations, config)
-    else 
-        error("nthreads must be a positive integer")
-    end
-    return loglikelihood
-end
+# function makeloglikelihood(observations, config)
+#     nthreads = length(config["inference"]["likelihood_approx"]["particle_filter"]["seed"])
+#     if nthreads==1
+#         loglikelihood = makesinglethreaddedloglikelihood(observations, config)
+#     elseif nthreads > 1
+#         loglikelihood = makemultitreaddedloglikelihood(observations, config)
+#     else 
+#         error("nthreads must be a positive integer")
+#     end
+#     return loglikelihood
+# end
 
-function makesinglethreaddedloglikelihood(observations, config)
+function makeloglikelihood(observations, config)
     model, param_seq = makemodel(config)
     if config["inference"]["likelihood_approx"]["method"] == "hybrid"
         pf_rng = makerng(config["inference"]["likelihood_approx"]["particle_filter"]["seed"])
@@ -212,8 +212,9 @@ function makesinglethreaddedloglikelihood(observations, config)
     elseif config["inference"]["likelihood_approx"]["method"] == "particle_filter"
         pf_rng = makerng(config["inference"]["likelihood_approx"]["particle_filter"]["seed"])
         nparticles = config["inference"]["likelihood_approx"]["particle_filter"]["nparticles"]
+        ismultithreadded = config["inference"]["likelihood_approx"]["particle_filter"]["multithreadding"]
 
-        approx = ParticleFilterApproximation(model, pf_rng, nparticles)
+        approx = ParticleFilterApproximation(model, pf_rng, nparticles, ismultithreadded)
 
         if "switch" in keys(config["inference"]["likelihood_approx"])
             @warn "Unused \"switch\" params in config with approximation method \"particle_filter\"."
@@ -259,75 +260,75 @@ function makesinglethreaddedloglikelihood(observations, config)
 end
 
 
-function makemultitreaddedloglikelihood(observations, config)
-    if config["inference"]["likelihood_approx"]["method"] == "particle_filter"
-        seeds = config["inference"]["likelihood_approx"]["particle_filter"]["seed"]
-        nthreads = length(seeds)
-        model_param_pairs = tuple(
-            [makemodel(config) for _ in 1:nthreads]...
-        )
-        models = tuple(
-            [first(pair) for pair in model_param_pairs]...
-        )
-        param_seqs = tuple(
-            [last(pair) for pair in model_param_pairs]...
-        )
-        pf_rngs = tuple(
-            [makerng(seed) for seed in seeds]...
-        )
-        nparticles = config["inference"]["likelihood_approx"]["particle_filter"]["nparticles"]
+# function makemultitreaddedloglikelihood(observations, config)
+#     if config["inference"]["likelihood_approx"]["method"] == "particle_filter"
+#         seeds = config["inference"]["likelihood_approx"]["particle_filter"]["seed"]
+#         nthreads = length(seeds)
+#         model_param_pairs = tuple(
+#             [makemodel(config) for _ in 1:nthreads]...
+#         )
+#         models = tuple(
+#             [first(pair) for pair in model_param_pairs]...
+#         )
+#         param_seqs = tuple(
+#             [last(pair) for pair in model_param_pairs]...
+#         )
+#         pf_rngs = tuple(
+#             [makerng(seed) for seed in seeds]...
+#         )
+#         nparticles = config["inference"]["likelihood_approx"]["particle_filter"]["nparticles"]
 
-        approxs = tuple(
-            [ParticleFilterApproximation(models[i], pf_rngs[i], nparticles) for i in 1:nthreads]...
-        )
+#         approxs = tuple(
+#             [ParticleFilterApproximation(models[i], pf_rngs[i], nparticles) for i in 1:nthreads]...
+#         )
 
-        if "switch" in keys(config["inference"]["likelihood_approx"])
-            @warn "Unused \"switch\" params in config with approximation method \"particle_filter\"."
-        end
-    elseif config["inference"]["likelihood_approx"]["method"] == "hybrid"
-        error("No multithreadded implementation of hybrid approximation.")
-    elseif config["inference"]["likelihood_approx"]["method"] == "kalman_filter"
-        error("No multithreadded implementation of Kalman filter approximation.")
-    else
-        error("Unknown likelihood_approx method specified in config.")
-    end
+#         if "switch" in keys(config["inference"]["likelihood_approx"])
+#             @warn "Unused \"switch\" params in config with approximation method \"particle_filter\"."
+#         end
+#     elseif config["inference"]["likelihood_approx"]["method"] == "hybrid"
+#         error("No multithreadded implementation of hybrid approximation.")
+#     elseif config["inference"]["likelihood_approx"]["method"] == "kalman_filter"
+#         error("No multithreadded implementation of Kalman filter approximation.")
+#     else
+#         error("Unknown likelihood_approx method specified in config.")
+#     end
 
-    seirconfig = config["model"]["stateprocess"]["params"]
-    function llparam_map!(mtbpparams, param)
-        return param_map!(
-            mtbpparams, 
-            seirconfig["E_state_count"], 
-            seirconfig["I_state_count"], 
-            param, 
-            seirconfig["immigration_rate"], 
-        )
-    end
+#     seirconfig = config["model"]["stateprocess"]["params"]
+#     function llparam_map!(mtbpparams, param)
+#         return param_map!(
+#             mtbpparams, 
+#             seirconfig["E_state_count"], 
+#             seirconfig["I_state_count"], 
+#             param, 
+#             seirconfig["immigration_rate"], 
+#         )
+#     end
 
-    curr_params = zeros(paramtype(first(models)), 3)
-    nparam_per_stage = 3
+#     curr_params = zeros(paramtype(first(models)), 3)
+#     nparam_per_stage = 3
 
-    lls = zeros(length(approxs))
+#     lls = zeros(length(approxs))
 
-    loglikelihood = (pars) -> begin # function loglikelihood(pars)
-        # pre-itervention
-        curr_params[2:nparam_per_stage] .= pars[1:(nparam_per_stage-1)]
-        for param_seq in param_seqs
-            for i in eachindex(param_seq.seq)
-                curr_params[1] = pars[i-1 + nparam_per_stage]
-                llparam_map!(param_seq[i], curr_params)
-            end
-        end
+#     loglikelihood = (pars) -> begin # function loglikelihood(pars)
+#         # pre-itervention
+#         curr_params[2:nparam_per_stage] .= pars[1:(nparam_per_stage-1)]
+#         for param_seq in param_seqs
+#             for i in eachindex(param_seq.seq)
+#                 curr_params[1] = pars[i-1 + nparam_per_stage]
+#                 llparam_map!(param_seq[i], curr_params)
+#             end
+#         end
 
-        Threads.@threads for i in eachindex(approxs)
-            lls[i] = logpdf!(models[i], param_seqs[i], observations, approxs[i], reset_obs_state_iter_setup!)
-        end
-        ll = sum(lls)
-        ll /= length(approxs)
-        return ll
-    end
+#         Threads.@threads for i in eachindex(approxs)
+#             lls[i] = logpdf!(models[i], param_seqs[i], observations, approxs[i], reset_obs_state_iter_setup!)
+#         end
+#         ll = sum(lls)
+#         ll /= length(approxs)
+#         return ll
+#     end
 
-    return loglikelihood
-end
+#     return loglikelihood
+# end
 
 function makeconstpriordists(config)
     const_prior_dists = Any[

@@ -29,6 +29,7 @@ inference:
     particle_filter:
       seed: 67890
       nparticles: 256
+      multithreadded: false
   prior_parameters:
     T_E:
       shape: 5.0

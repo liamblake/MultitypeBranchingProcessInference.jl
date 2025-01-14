@@ -122,21 +122,69 @@ function calcweights!(store::ParticleStore, statespacemodel, obs)
     return calcweights!(store.weights, store.store, statespacemodel, obs)
 end
 
-function initstate!(rng::AbstractRNG, particles::ParticleStore, statespacemodel)
+## Simulation for particle filter
+abstract type AbstractThreadInfo end
+struct SingleThreadded <: AbstractThreadInfo end
+struct MultiThreadded{S} <: AbstractThreadInfo
+    memalloc::S
+end
+
+function MultiThreadded(mtbp::MultitypeBranchingProcess)
+    return MultiThreadded([similar(mtbp._deathdistribution) for _ in 1:Threads.nthreads()])
+end
+
+function initstate!(rng::AbstractRNG, particles::ParticleStore, statespacemodel, thread_info::SingleThreadded=SingleThreadded())
     for particle in particles.store
         rand!(rng, statespacemodel, particle)
     end
     return 
 end
-initstate!(particles::ParticleStore, statespacemodel) = initstate!(Random.default_rng(), particles, statespacemodel)
+function chunkup(n::Int, nchunks::Int)
+    smallchunksize = n÷nchunks
+    bigchunksize = smallchunksize + 1
+    nbigchunks = n - smallchunksize*nchunks
+    chunks = Vector{UnitRange{Int}}(undef, nchunks)
+    chunkstart = 1
+    for i in 1:nbigchunks
+        chunks[i] = chunkstart:(chunkstart+bigchunksize-1)
+        chunkstart += bigchunksize
+    end
+    for i in (nbigchunks+1):nchunks
+        chunks[i] = chunkstart:(chunkstart+smallchunksize-1)
+        chunkstart += smallchunksize
+    end
+    return chunks
+end
+function initstate!(rng::AbstractRNG, particles::ParticleStore, statespacemodel, thread_info::MultiThreadded)
+    chunks = chunkup(particles.count, Threads.nthreads())
+    Threads.@threads for chunk in chunks
+        for i in chunk
+            rand!(rng, statespacemodel, particles.store[i])
+        end
+    end
+    return 
+end
+initstate!(particles::ParticleStore, statespacemodel, thread_info=SingleThreadded()) = 
+    initstate!(Random.default_rng(), particles, statespacemodel, thread_info)
 
-function simulatestate!(rng::AbstractRNG, particles::ParticleStore, statespacemodel, t)
+function simulatestate!(rng::AbstractRNG, particles::ParticleStore, statespacemodel, t, thread_info::SingleThreadded=SingleThreadded())
     for particle in particles.store
         simulatestate!(rng, particle, statespacemodel, t)
     end
 end
-simulatestate!(particles::ParticleStore, statespacemodel, t) = 
-simulatestate!(Random.default_rng(), particles::ParticleStore, statespacemodel, t)
+function simulatestate!(rng::AbstractRNG, particles::ParticleStore, statespacemodel, t, thread_info::MultiThreadded,
+)
+    chunks = chunkup(particles.count, Threads.nthreads())
+    Threads.@threads for chunkid in eachindex(chunks)
+        memalloc = thread_info.memalloc[chunkid]
+        chunk = chunks[chunkid]
+        for i in chunk
+            simulatestate!(rng, particles.store[i], statespacemodel, t, memalloc)
+        end
+    end
+end
+simulatestate!(particles::ParticleStore, statespacemodel, t, thread_info=SingleThreadded()) = 
+    simulatestate!(Random.default_rng(), particles::ParticleStore, statespacemodel, t, thread_info)
 
 ## NEED TO RESAMPLE WEIGHTS TOO!! TO CALC LIKELIHOOD
 function resample!(rng::AbstractRNG, particles::ParticleStore)

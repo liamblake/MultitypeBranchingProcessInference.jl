@@ -3,6 +3,7 @@ module MetropolisHastings
 using Random
 using Distributions
 using LinearAlgebra
+using Dates
 
 import Random.rand
 import Distributions.logpdf
@@ -51,10 +52,11 @@ end
 
 function _printinfo(verbose, info_io, samples_count, samples_buffer, start_time_sec, max_time_sec, maxsamples, loglike, infloglikecount)
     if !verbose
-        return 
+        return
     end
     accratio = samples_buffer.accepted_count/samples_buffer.bufferidx
     println(info_io, "[INFO] Iteration $(samples_count).")
+    println(info_io, "[INFO] Current time $(Dates.now()).")
     println(info_io, "[INFO] Elapsed time $(elapsedtime(start_time_sec)) seconds.")
     println(info_io, "[INFO] Acceptance ratio $(accratio).")
     println(info_io, "[INFO] Number of proposed samples with infinite loglikelihood: $(infloglikecount) of the last $(samples_buffer.bufferidx) iterations.")
@@ -83,6 +85,7 @@ function _printinfo_endstatus(verbose, info_io, start_time_sec, mh_config, sampl
     total_size_nbytes = samples_size_nbytes + header_size_nbytes
 
     println(info_io, "[INFO] END STATUS")
+    println(info_io, "[INFO]     current time $(Dates.now()).")
     println(info_io, "[INFO]     elapsed time: $(elapsedtime(start_time_sec)) seconds.")
     println(info_io, "[INFO]     timeout: $(timeout(start_time_sec, mh_config.max_time_sec)).")
     println(info_io, "[INFO]     max iters reached: $(maxitersreached(samples_count, maxsamples)).")

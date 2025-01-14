@@ -902,7 +902,7 @@ version = "2023.12.12"
 
 [[deps.MultitypeBranchingProcessInference]]
 deps = ["Distributions", "KalmanFilters", "LinearAlgebra", "MetropolisHastings", "MultitypeBranchingProcesses", "ParticleFilter", "Random", "Reexport"]
-path = "/Users/a1627293/Academic/Projects/Epidemics/MetaPopulationBranchingProcessInference/MultitypeBranchingProcessInference.jl/examples/deps/../../../MultitypeBranchingProcessInference.jl"
+path = "/Users/a1627293/Academic/Projects/Epidemics/MultitypeBranchingProcessInference.jl/examples/deps/../../../MultitypeBranchingProcessInference.jl"
 uuid = "308293ef-aee2-4ae5-b65c-832e3cc62f62"
 version = "1.0.0-DEV"
 

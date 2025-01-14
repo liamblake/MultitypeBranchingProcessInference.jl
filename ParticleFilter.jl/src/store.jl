@@ -64,6 +64,16 @@ end
 
 Random.rand(weights::Weights) = rand(Random.default_rng(), weights)
 
+function ess(weights::Weights)
+    s2 = zero(paramtype(weights))
+    s = weights.cumulative[end]
+    for wi in weights.values
+        r = wi/s
+        s2 += r^2
+    end
+    return one(paramtype(weights))/s2
+end
+
 ###############################################################################
 
 struct ParticleStore{S<:AbstractVector, W<:AbstractArray}
@@ -120,6 +130,10 @@ end
 # returns the loglikelihood of the obs
 function calcweights!(store::ParticleStore, statespacemodel, obs)
     return calcweights!(store.weights, store.store, statespacemodel, obs)
+end
+
+function ess(store::ParticleStore)
+    return ess(store.weights)
 end
 
 ## Simulation for particle filter

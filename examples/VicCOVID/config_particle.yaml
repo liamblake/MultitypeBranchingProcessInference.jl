@@ -17,7 +17,7 @@ model:
     initial_state: [10, 0, 0, 0, 0, 0]
   observation:
     mean: [0.0]
-    cov: [1.0]
+    cov: [2500.0]
 
 inference:
   data_filename: data/observations.csv
@@ -28,7 +28,7 @@ inference:
       seed: 1516171819
     particle_filter:
       seed: 1234
-      nparticles: 1000
+      nparticles: 512
       multithreadding: true
   prior_parameters:
     T_E:

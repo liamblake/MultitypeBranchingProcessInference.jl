@@ -33,7 +33,8 @@ export Weights,
     elementtype,
     AbstractThreadInfo, 
     SingleThreadded,
-    MultiThreadded
+    MultiThreadded,
+    ess
 
 include("store.jl")
 include("observations.jl")

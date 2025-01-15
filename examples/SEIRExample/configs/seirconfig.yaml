@@ -72,12 +72,12 @@ state_inference:
   threshold: 6
   nparticles: 32768
   tsteps: [9, 36, 51]
+  states: [1, 2]
 
 benchmarks:
   pfseed: 2021222324
   switchseed: 2526272829
   bootseed: 3131323334
-  thresholds: [10, 16]
-  nparticles: [64, 128, 256, 512]
-  nsamples: 512
-  states: [1, 2]
+  thresholds: [6, 10]
+  nparticles: [512, 1024, 2048]
+  nsamples: 2048

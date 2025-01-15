@@ -5,14 +5,16 @@
 **/deps/Manifest.toml
 
 # figs
-**/**.png
-**/**.pdf
+# **/**.png
+# **/**.pdf
 **/**.log
+**/gr-temp/*
+**/*traceplot*.pdf
 
 # data
 **/**.rds
-**/**.bin
-**/**.info.txt
+# **/**.bin
+# **/**.info.txt
 
 # settings
 **/**.vscode

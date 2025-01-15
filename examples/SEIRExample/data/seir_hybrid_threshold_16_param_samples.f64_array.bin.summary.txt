@@ -1,0 +1,23 @@
+Chains MCMC chain (134464×3×1 reshape(adjoint(::Matrix{Float64}), 134464, 3, 1) with eltype Float64):
+
+Iterations        = 1:1:134464
+Number of chains  = 1
+Samples per chain = 134464
+parameters        = R_0, T_E, T_I
+
+Summary Statistics
+  parameters      mean       std      mcse    ess_bulk     ess_tail      rhat   ess_per_sec
+      Symbol   Float64   Float64   Float64     Float64      Float64   Float64       Missing
+
+         R_0    1.3083    0.2438    0.0028   7833.4461   10818.4123    1.0003       missing
+         T_E    5.0471    0.5010    0.0054   8608.6026   12907.4685    1.0003       missing
+         T_I   15.5131    2.7598    0.0292   9161.9634   12920.9357    1.0001       missing
+
+Quantiles
+  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
+      Symbol   Float64   Float64   Float64   Float64   Float64
+
+         R_0    0.8778    1.1370    1.2904    1.4610    1.8360
+         T_E    4.1211    4.6978    5.0327    5.3732    6.0736
+         T_I   10.6301   13.5694   15.3328   17.2694   21.3661
+

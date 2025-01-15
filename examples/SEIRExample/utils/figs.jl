@@ -6,13 +6,15 @@ const COLOUR_MAP = Dict(
     2 => :blue,
     3 => :red,
     4 => :green,
+    5 => :purple,
+    6 => :magenta,
 )
-cmap(i) = (i in keys(COLOUR_MAP)) ? COLOUR_MAP[i] : error("Unknown colour id, expected on of $(keys(COLOUR_MAP))")
-pmap(i) = (i in keys(COLOUR_MAP)) ? Symbol(COLOUR_MAP[i], :s) : error("Unknown colour id, expected on of $(keys(COLOUR_MAP))")
+cmap(i) = (i in keys(COLOUR_MAP)) ? COLOUR_MAP[i] : error("Unknown colour id, expected one of $(keys(COLOUR_MAP)), got $(i)")
+pmap(i) = (i in keys(COLOUR_MAP)) ? Symbol(COLOUR_MAP[i], :s) : error("Unknown colour id, expected one of $(keys(COLOUR_MAP)), got $(i)")
 
 const STYLE_MAP = Dict(
     1 => :solid,
     2 => :dash,
     3 => :dot,
 )
-smap(i) = (i in keys(STYLE_MAP)) ? STYLE_MAP[i] : error("Unknown style id, expected on of $(keys(STYLE_MAP))")
+smap(i) = (i in keys(STYLE_MAP)) ? STYLE_MAP[i] : error("Unknown style id, expected one of $(keys(STYLE_MAP)), got $(i)")

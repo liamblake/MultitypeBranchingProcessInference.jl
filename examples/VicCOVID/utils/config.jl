@@ -182,18 +182,41 @@ function reset_obs_state_iter_setup!(
         particle[reset_idx] = zero(eltype(particle))
     end
 end
+function iter_setup!(
+    f::MTBPKalmanFilterApproximation,
+    model, dt, observation, iteration, use_prev_iter_params,
+)
+    reset_obs_state_iter_setup!(
+        f, model, dt, observation, iteration, use_prev_iter_params,
+    )
 
-# function makeloglikelihood(observations, config)
-#     nthreads = length(config["inference"]["likelihood_approx"]["particle_filter"]["seed"])
-#     if nthreads==1
-#         loglikelihood = makesinglethreaddedloglikelihood(observations, config)
-#     elseif nthreads > 1
-#         loglikelihood = makemultitreaddedloglikelihood(observations, config)
-#     else 
-#         error("nthreads must be a positive integer")
-#     end
-#     return loglikelihood
-# end
+    if iteration!=1
+        return
+    end
+    
+    cache = @view f.kalmanfilter._state_cache[:,1]
+    op = f.moments_operator
+    mtbp = model.stateprocess
+    
+    moments!(op, mtbp, dt)
+    mean!(mtbp.initial_state.first_moments, op, only(mtbp.initial_state.events))
+    # VCOV(X) = E[XX'] - E[X]E[X']
+    # VCOV(X) + E[X]E[X'] = E[XX']
+    variance_covariance!(mtbp.initial_state.second_moments, op, only(mtbp.initial_state.events))
+    for i in eachindex(mtbp.initial_state.first_moments)
+        cache .= mtbp.initial_state.first_moments
+        cache .*= mtbp.initial_state.first_moments[i]
+        mtbp.initial_state.second_moments[:,i] .+= cache
+    end 
+    return 
+end
+function iter_setup!(
+    f, model, dt, observation, iteration, use_prev_iter_params,
+)
+    return reset_obs_state_iter_setup!(
+        f, model, dt, observation, iteration, use_prev_iter_params,
+    )
+end
 
 function makeloglikelihood(observations, config)
     model, param_seq = makemodel(config)
@@ -253,82 +276,11 @@ function makeloglikelihood(observations, config)
             llparam_map!(param_seq[i], curr_params)
         end
         
-        return logpdf!(model, param_seq, observations, approx, reset_obs_state_iter_setup!)
+        return logpdf!(model, param_seq, observations, approx, iter_setup!)
     end
 
     return loglikelihood
 end
-
-
-# function makemultitreaddedloglikelihood(observations, config)
-#     if config["inference"]["likelihood_approx"]["method"] == "particle_filter"
-#         seeds = config["inference"]["likelihood_approx"]["particle_filter"]["seed"]
-#         nthreads = length(seeds)
-#         model_param_pairs = tuple(
-#             [makemodel(config) for _ in 1:nthreads]...
-#         )
-#         models = tuple(
-#             [first(pair) for pair in model_param_pairs]...
-#         )
-#         param_seqs = tuple(
-#             [last(pair) for pair in model_param_pairs]...
-#         )
-#         pf_rngs = tuple(
-#             [makerng(seed) for seed in seeds]...
-#         )
-#         nparticles = config["inference"]["likelihood_approx"]["particle_filter"]["nparticles"]
-
-#         approxs = tuple(
-#             [ParticleFilterApproximation(models[i], pf_rngs[i], nparticles) for i in 1:nthreads]...
-#         )
-
-#         if "switch" in keys(config["inference"]["likelihood_approx"])
-#             @warn "Unused \"switch\" params in config with approximation method \"particle_filter\"."
-#         end
-#     elseif config["inference"]["likelihood_approx"]["method"] == "hybrid"
-#         error("No multithreadded implementation of hybrid approximation.")
-#     elseif config["inference"]["likelihood_approx"]["method"] == "kalman_filter"
-#         error("No multithreadded implementation of Kalman filter approximation.")
-#     else
-#         error("Unknown likelihood_approx method specified in config.")
-#     end
-
-#     seirconfig = config["model"]["stateprocess"]["params"]
-#     function llparam_map!(mtbpparams, param)
-#         return param_map!(
-#             mtbpparams, 
-#             seirconfig["E_state_count"], 
-#             seirconfig["I_state_count"], 
-#             param, 
-#             seirconfig["immigration_rate"], 
-#         )
-#     end
-
-#     curr_params = zeros(paramtype(first(models)), 3)
-#     nparam_per_stage = 3
-
-#     lls = zeros(length(approxs))
-
-#     loglikelihood = (pars) -> begin # function loglikelihood(pars)
-#         # pre-itervention
-#         curr_params[2:nparam_per_stage] .= pars[1:(nparam_per_stage-1)]
-#         for param_seq in param_seqs
-#             for i in eachindex(param_seq.seq)
-#                 curr_params[1] = pars[i-1 + nparam_per_stage]
-#                 llparam_map!(param_seq[i], curr_params)
-#             end
-#         end
-
-#         Threads.@threads for i in eachindex(approxs)
-#             lls[i] = logpdf!(models[i], param_seqs[i], observations, approxs[i], reset_obs_state_iter_setup!)
-#         end
-#         ll = sum(lls)
-#         ll /= length(approxs)
-#         return ll
-#     end
-
-#     return loglikelihood
-# end
 
 function makeconstpriordists(config)
     const_prior_dists = Any[

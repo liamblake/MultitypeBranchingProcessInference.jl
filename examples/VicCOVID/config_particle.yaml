@@ -17,7 +17,7 @@ model:
     initial_state: [10, 0, 0, 0, 0, 0]
   observation:
     mean: [0.0]
-    cov: [2500.0]
+    cov: [1.0]
 
 inference:
   data_filename: data/observations.csv

@@ -42,7 +42,9 @@ function main(
         writeparticles(io, particles.store, t)
         for _ in 1:nsteps
             t += tstep
-            simulate!(rng, particles, mtbp, tstep)
+            for particle in particles.store
+                simulate!(rng, particle, mtbp, tstep)
+            end
             writeparticles(io, particles.store, t)
         end
     end

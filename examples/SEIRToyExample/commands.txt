@@ -1,0 +1,3 @@
+#!/bin/sh
+julia --project=../../. simulate.jl params.yaml
+julia --project=../../. analysis.jl params.yaml particles.Int64.bin

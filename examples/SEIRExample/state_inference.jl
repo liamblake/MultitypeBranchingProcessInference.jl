@@ -59,11 +59,11 @@ function makestateestimateplot(tstep, stateidx, config)
     # to get state estimates we need to determine which filter was used at the last iteration
     if hf.switchparams.currfiltername == :pfapprox
         statesims = [p[stateidx] for p in pf.store.store]
-        histogram!(statesims, bins=xl:xr, normalize=:pdf, label="Hybrid (s=%$threshold)", alpha=0.3)
+        histogram!(statesims, bins=xl:xr, normalize=:pdf, label="Hybrid (s=$threshold)", alpha=0.3)
     elseif hf.switchparams.currfiltername == :kfapprox
         mu = kf.kalmanfilter.state_estimate[stateidx]
         sigma = sqrt(kf.kalmanfilter.state_estimate_covariance[stateidx,stateidx])
-        plot!(xl:0.05:xr, x -> pdf(Normal(mu, sigma), x), label="Hybrid (s=%$threshold)")
+        plot!(xl:0.05:xr, x -> pdf(Normal(mu, sigma), x), label="Hybrid (s=$threshold)")
     end
 
     # additional plot formatting
@@ -71,7 +71,7 @@ function makestateestimateplot(tstep, stateidx, config)
     # plot mean of pf
     plot!(mean(pfstatesims)*[1;1], [yl; yh], colour=:darkblue, linewidth=3, linestyle=:dash, label=false)
     # add annotation for time stamp
-    annotate!([xl+0.05*(xr-xl)], [0.9*yh], "t=%$(t[tstep])")
+    annotate!([xl+0.05*(xr-xl)], [0.9*yh], L"t=%$(t[tstep])")
     # other formatting
     plot!(ylabel="Density", xlabel=L"[\mathbf{z}_t]_%$(stateidx)", grid=:off)
     return plot!()
@@ -83,16 +83,22 @@ function main(argv)
                \n    - config file name.")
     end
 
-    config = joinpath(@__DIR__, argv[1])
+    config = YAML.load_file(joinpath(@__DIR__, argv[1]))
 
     for stateidx in config["state_inference"]["states"]
         for tstep in config["state_inference"]["tsteps"]
             p = makestateestimateplot(tstep, stateidx, config)
-            figname = joinpath(pwd(), "figs", "state_inference-config_file_$(argv[1])-state_idx_$(stateidx)-tstep_$(tstep).$FIGURE_FILE_EXT")
+            figname = "state_inference-config_file_$(argv[1])-state_idx_$(stateidx)-tstep_$(tstep)"
             figname = replace(figname, "." => "_", " " => "_", "/" => "_", "\\" => "_")
-            savefig(p, )
+            figname = joinpath(pwd(), "figs", "$figname.$FIGURE_FILE_EXT")
+            savefig(p, figname)
         end
     end
+
+    tmp = joinpath(pwd(), "gr-temp")
+    println("Press any key to remove the temporary folder at $tmp (or press Ctrl-c to cancel).")
+    readline(stdin)
+    rm(tmp; force=true, recursive=true)
 end
 
 main(ARGS)

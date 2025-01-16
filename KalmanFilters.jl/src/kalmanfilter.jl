@@ -240,24 +240,7 @@ function update!(kf::KalmanFilter, obs::AbstractVector, returnloglikelihood=true
     # P(k|k-1)H'
     mul!(kf._gain, kf.predicted_state_covariance, kf.observation_model')
     # P(k|k-1)H'/S(k)
-    chol = try 
-        cholesky!(kf._residual_covariance)
-    catch
-        display("obs")
-        display(obs)
-        display("resid cov")
-        display(kf._residual_covariance)
-        display("state est")
-        display(kf.state_estimate)
-        display(kf.state_estimate_covariance)
-        display("state trans")
-        display(kf.state_transition_model)
-        display(kf.state_transition_covariance)
-        display("pred state")
-        display(kf.predicted_state)
-        display(kf.predicted_state_covariance)
-        error()
-    end
+    chol = cholesky!(kf._residual_covariance)
     rdiv!(kf._gain, chol)
 
     # x̂(k|k) = x̂(k|k-1) + K(k)ỹ(k)

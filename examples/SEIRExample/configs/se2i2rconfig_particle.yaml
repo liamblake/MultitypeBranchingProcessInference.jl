@@ -13,7 +13,7 @@ model:
       E_state_count: 2
       I_state_count: 2
       is_time_homogeneous: false
-      timestamps: [0.0, 10.0]
+      timestamps: [0.0, 9.0]
       # delta = 1/6, mean latence of 6 days
       exposed_stage_chage_rate: [0.3333333333333333, 0.3333333333333333]
       # beta = R0*lambda = 3/12, infection rate
@@ -50,7 +50,7 @@ inference:
     intervention:
       time: 
         lower: 1
-        upper: 31
+        upper: 29
       effect:
         alpha: 1.1
         beta: 1.5
@@ -74,18 +74,3 @@ inference:
     adapt_cov_scale: 0.8
     continue: false
 
-state_inference:
-  pfseed: 2021222324
-  switchseed: 2526272829
-  threshold: 30
-  nparticles: 32768
-  tsteps: [9, 31]
-
-benchmarks:
-  pfseed: 2021222324
-  switchseed: 2526272829
-  bootseed: 3031323334
-  thresholds: [10, 20]
-  nparticles: [256, 512, 1024]
-  nsamples: 512
-  states: [1, 3]

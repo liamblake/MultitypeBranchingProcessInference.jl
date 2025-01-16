@@ -8,13 +8,13 @@ function MTBPParams(nrates::Integer, ncdf_vec::AbstractVector{Integer}, T::Type=
     @assert nrates == length(ncdf_vec)
     rates = zeros(T, nrates)
     cdfs = [zeros(T, n) for n in ncdf_vec]
-    return MTBPParams(-Inf, rates, cdfs)
+    return MTBPParams(zero(T), rates, cdfs)
 end
 
 function MTBPParams(model::MultitypeBranchingProcess)
     rates = copy(model.rates)
     cdfs = [copy(progeny.distribution) for progeny in model.progeny]
-    return MTBPParams(-Inf, rates, cdfs)
+    return MTBPParams(zero(paramtype(model)), rates, cdfs)
 end 
 
 gettime(p::MTBPParams) = p.time

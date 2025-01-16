@@ -4,6 +4,15 @@ julia --project=../. simulate.jl config.yaml
 julia --project=../. state_inference.jl config.yaml
 
 julia --project=../. inference.jl config.yaml
+E.g.,
+    julia --project=../. inference.jl configs/se2i2rconfig_particle.yaml
+    julia --project=../. inference.jl configs/se2i2rconfig_hybrid_threshold_20.yaml
+    julia --project=../. inference.jl configs/se2i2rconfig_hybrid_threshold_14.yaml
+    julia --project=../. inference.jl configs/se2i2rconfig_kalman.yaml
+    julia --project=../. inference.jl configs/seirconfig_particle.yaml
+    julia --project=../. inference.jl configs/seirconfig_hybrid_threshold_10.yaml
+    julia --project=../. inference.jl configs/seirconfig_hybrid_threshold_6.yaml
+    julia --project=../. inference.jl configs/seirconfig_kalman.yaml
 
 julia --project=../. analysis.jl config.yaml "name1=dataset1.bin" "name2=dataset2.bin" ... "nameN=datasetN.bin"
 

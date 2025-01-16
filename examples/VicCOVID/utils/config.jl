@@ -158,8 +158,6 @@ function reset_obs_state_iter_setup!(
     f::HybridFilterApproximation,
     model, dt, observation, iteration, use_prev_iter_params,
 )
-    reset_obs_state_iter_setup!(f.kfapprox, model, dt, observation, iteration, use_prev_iter_params)
-    reset_obs_state_iter_setup!(f.pfapprox, model, dt, observation, iteration, use_prev_iter_params)
     return 
 end
 function reset_obs_state_iter_setup!(
@@ -181,41 +179,6 @@ function reset_obs_state_iter_setup!(
     return for particle in f.store.store
         particle[reset_idx] = zero(eltype(particle))
     end
-end
-function iter_setup!(
-    f::MTBPKalmanFilterApproximation,
-    model, dt, observation, iteration, use_prev_iter_params,
-)
-    reset_obs_state_iter_setup!(
-        f, model, dt, observation, iteration, use_prev_iter_params,
-    )
-
-    if iteration!=1
-        return
-    end
-    
-    cache = @view f.kalmanfilter._state_cache[:,1]
-    op = f.moments_operator
-    mtbp = model.stateprocess
-    
-    moments!(op, mtbp, dt)
-    mean!(mtbp.initial_state.first_moments, op, only(mtbp.initial_state.events))
-    # VCOV(X) = E[XX'] - E[X]E[X']
-    # VCOV(X) + E[X]E[X'] = E[XX']
-    variance_covariance!(mtbp.initial_state.second_moments, op, only(mtbp.initial_state.events))
-    for i in eachindex(mtbp.initial_state.first_moments)
-        cache .= mtbp.initial_state.first_moments
-        cache .*= mtbp.initial_state.first_moments[i]
-        mtbp.initial_state.second_moments[:,i] .+= cache
-    end 
-    return 
-end
-function iter_setup!(
-    f, model, dt, observation, iteration, use_prev_iter_params,
-)
-    return reset_obs_state_iter_setup!(
-        f, model, dt, observation, iteration, use_prev_iter_params,
-    )
 end
 
 function makeloglikelihood(observations, config)
@@ -276,7 +239,7 @@ function makeloglikelihood(observations, config)
             llparam_map!(param_seq[i], curr_params)
         end
         
-        return logpdf!(model, param_seq, observations, approx, iter_setup!)
+        return logpdf!(model, param_seq, observations, approx, reset_obs_state_iter_setup!) 
     end
 
     return loglikelihood

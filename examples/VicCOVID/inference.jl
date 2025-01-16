@@ -17,8 +17,8 @@ function main(argv)
 
     setenvironment!(config)
     
-    raw_observations = read_observations(joinpath(pwd(), config["inference"]["data_filename"]))
-    t = 0.0:(length(raw_observations)-1)
+    raw_observations = read_observations(joinpath(pwd(), config["inference"]["data"]["filename"]))
+    t = config["inference"]["data"]["first_observation_time"] .+ (0:(length(raw_observations)-1))
     observations = Observations(t, raw_observations)
 
     loglikelihood = makeloglikelihood(observations, config)

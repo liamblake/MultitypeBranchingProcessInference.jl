@@ -196,8 +196,6 @@ function reset_obs_state_iter_setup!(
     f::HybridFilterApproximation,
     model, dt, observation, iteration, use_prev_iter_params,
 )
-    reset_obs_state_iter_setup!(f.kfapprox, model, dt, observation, iteration, use_prev_iter_params)
-    reset_obs_state_iter_setup!(f.pfapprox, model, dt, observation, iteration, use_prev_iter_params)
     return 
 end
 function reset_obs_state_iter_setup!(

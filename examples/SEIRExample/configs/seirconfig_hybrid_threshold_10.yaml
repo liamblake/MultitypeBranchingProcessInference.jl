@@ -65,19 +65,3 @@ inference:
     nadapt: 65536
     adapt_cov_scale: 0.8
     continue: false
-
-state_inference:
-  pfseed: 2021222324
-  switchseed: 2526272829
-  threshold: 6
-  nparticles: 32768
-  tsteps: [9, 36, 51]
-
-benchmarks:
-  pfseed: 2021222324
-  switchseed: 2526272829
-  bootseed: 3131323334
-  thresholds: [10, 16]
-  nparticles: [64, 128, 256, 512]
-  nsamples: 512
-  states: [1, 2]

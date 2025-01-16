@@ -1,9 +1,9 @@
 [INFO] Iteration 16384.
-[INFO] Current time 2025-01-15T10:41:04.854.
-[INFO] Elapsed time 1.0826449394226074 seconds.
+[INFO] Current time 2025-01-16T12:02:47.887.
+[INFO] Elapsed time 1.36427903175354 seconds.
 [INFO] Acceptance ratio 0.42987060546875.
 [INFO] Number of proposed samples with infinite loglikelihood: 1 of the last 16384 iterations.
-[INFO] Remaining time 604798.9173510075 seconds
+[INFO] Remaining time 604798.6357159615 seconds
 [INFO] Remaining iterations 183616
 [INFO] Current sample [0.9880307677853721, 5.515534454669002, 13.437135473940092].
 [INFO] Current loglikelihood -81.70853183099217.
@@ -15,11 +15,11 @@ dim: 3
 )
 )
 [INFO] Iteration 32768.
-[INFO] Current time 2025-01-15T10:41:06.265.
-[INFO] Elapsed time 2.4449079036712646 seconds.
+[INFO] Current time 2025-01-16T12:02:49.517.
+[INFO] Elapsed time 2.943753957748413 seconds.
 [INFO] Acceptance ratio 0.48114013671875.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604797.5550889969 seconds
+[INFO] Remaining time 604797.0562419891 seconds
 [INFO] Remaining iterations 167232
 [INFO] Current sample [0.9796011399620264, 4.33327939922673, 11.432950829810663].
 [INFO] Current loglikelihood -81.87358266150852.
@@ -31,11 +31,11 @@ dim: 3
 )
 )
 [INFO] Iteration 49152.
-[INFO] Current time 2025-01-15T10:41:07.251.
-[INFO] Elapsed time 3.4311699867248535 seconds.
+[INFO] Current time 2025-01-16T12:02:50.743.
+[INFO] Elapsed time 4.169932842254639 seconds.
 [INFO] Acceptance ratio 0.49090576171875.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604796.5688259602 seconds
+[INFO] Remaining time 604795.8300631046 seconds
 [INFO] Remaining iterations 150848
 [INFO] Current sample [1.3762759839680205, 5.2210852886358925, 21.382900133354127].
 [INFO] Current loglikelihood -81.57760479379513.
@@ -47,11 +47,11 @@ dim: 3
 )
 )
 [INFO] Iteration 65536.
-[INFO] Current time 2025-01-15T10:41:08.310.
-[INFO] Elapsed time 4.5052220821380615 seconds.
+[INFO] Current time 2025-01-16T12:02:51.962.
+[INFO] Elapsed time 5.388147830963135 seconds.
 [INFO] Acceptance ratio 0.486083984375.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604795.4947729111 seconds
+[INFO] Remaining time 604794.6118481159 seconds
 [INFO] Remaining iterations 134464
 [INFO] Current sample [1.2905723312112338, 5.934374713621071, 18.52611627278684].
 [INFO] Current loglikelihood -81.52761492205927.
@@ -63,89 +63,89 @@ dim: 3
 )
 )
 [INFO] Iteration 81920.
-[INFO] Current time 2025-01-15T10:41:09.312.
-[INFO] Elapsed time 5.4926910400390625 seconds.
+[INFO] Current time 2025-01-16T12:02:53.197.
+[INFO] Elapsed time 6.623570919036865 seconds.
 [INFO] Acceptance ratio 0.4779052734375.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604794.5073049068 seconds
+[INFO] Remaining time 604793.3764250278 seconds
 [INFO] Remaining iterations 118080
 [INFO] Current sample [1.0542821473158672, 5.894916483648727, 16.872415956853303].
 [INFO] Current loglikelihood -81.86101436154554.
 [INFO] Iteration 98304.
-[INFO] Current time 2025-01-15T10:41:10.331.
-[INFO] Elapsed time 6.511168956756592 seconds.
+[INFO] Current time 2025-01-16T12:02:54.420.
+[INFO] Elapsed time 7.862000942230225 seconds.
 [INFO] Acceptance ratio 0.47418212890625.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604793.4888269901 seconds
+[INFO] Remaining time 604792.137994051 seconds
 [INFO] Remaining iterations 101696
 [INFO] Current sample [1.0073585373343554, 5.023063674439787, 15.096169248854553].
 [INFO] Current loglikelihood -81.76245686459019.
 [INFO] Iteration 114688.
-[INFO] Current time 2025-01-15T10:41:11.320.
-[INFO] Elapsed time 7.500133037567139 seconds.
+[INFO] Current time 2025-01-16T12:02:55.670.
+[INFO] Elapsed time 9.096323013305664 seconds.
 [INFO] Acceptance ratio 0.47845458984375.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604792.499863863 seconds
+[INFO] Remaining time 604790.903673172 seconds
 [INFO] Remaining iterations 85312
 [INFO] Current sample [1.2481381816646706, 5.47453529255301, 19.57594912435126].
 [INFO] Current loglikelihood -81.55822201505788.
 [INFO] Iteration 131072.
-[INFO] Current time 2025-01-15T10:41:12.324.
-[INFO] Elapsed time 8.504364967346191 seconds.
+[INFO] Current time 2025-01-16T12:02:56.939.
+[INFO] Elapsed time 10.36558198928833 seconds.
 [INFO] Acceptance ratio 0.47943115234375.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604791.4956319332 seconds
+[INFO] Remaining time 604789.6344151497 seconds
 [INFO] Remaining iterations 68928
 [INFO] Current sample [1.0742296219806933, 4.543375703200384, 11.702380022802851].
 [INFO] Current loglikelihood -82.03797652474243.
 [INFO] Iteration 147456.
-[INFO] Current time 2025-01-15T10:41:13.348.
-[INFO] Elapsed time 9.52841591835022 seconds.
+[INFO] Current time 2025-01-16T12:02:58.154.
+[INFO] Elapsed time 11.580258846282959 seconds.
 [INFO] Acceptance ratio 0.47369384765625.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604790.4715809822 seconds
+[INFO] Remaining time 604788.4197371006 seconds
 [INFO] Remaining iterations 52544
 [INFO] Current sample [0.7241315912105928, 5.236142041062422, 17.32545173083402].
 [INFO] Current loglikelihood -85.47526403544038.
 [INFO] Iteration 163840.
-[INFO] Current time 2025-01-15T10:41:14.340.
-[INFO] Elapsed time 10.520576000213623 seconds.
+[INFO] Current time 2025-01-16T12:02:59.375.
+[INFO] Elapsed time 12.801996946334839 seconds.
 [INFO] Acceptance ratio 0.47894287109375.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604789.4794199467 seconds
+[INFO] Remaining time 604787.1980001926 seconds
 [INFO] Remaining iterations 36160
 [INFO] Current sample [1.2475204648592715, 5.892551250257275, 15.590754200980614].
 [INFO] Current loglikelihood -81.64442368481612.
 [INFO] Iteration 180224.
-[INFO] Current time 2025-01-15T10:41:15.320.
-[INFO] Elapsed time 11.500005006790161 seconds.
+[INFO] Current time 2025-01-16T12:03:00.616.
+[INFO] Elapsed time 14.04259181022644 seconds.
 [INFO] Acceptance ratio 0.47607421875.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604788.4999918938 seconds
+[INFO] Remaining time 604785.9574041367 seconds
 [INFO] Remaining iterations 19776
 [INFO] Current sample [1.4364134777559756, 5.636856585419978, 14.54130163476073].
 [INFO] Current loglikelihood -82.79850582956377.
 [INFO] Iteration 196608.
-[INFO] Current time 2025-01-15T10:41:16.302.
-[INFO] Elapsed time 12.48226809501648 seconds.
+[INFO] Current time 2025-01-16T12:03:01.893.
+[INFO] Elapsed time 15.32007884979248 seconds.
 [INFO] Acceptance ratio 0.4796142578125.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
-[INFO] Remaining time 604787.517729044 seconds
+[INFO] Remaining time 604784.6799180508 seconds
 [INFO] Remaining iterations 3392
 [INFO] Current sample [1.2667138100664108, 5.063032693857705, 15.585069949429576].
 [INFO] Current loglikelihood -81.92664090398743.
 [INFO] Iteration 200000.
-[INFO] Current time 2025-01-15T10:41:16.503.
-[INFO] Elapsed time 12.683030128479004 seconds.
+[INFO] Current time 2025-01-16T12:03:02.143.
+[INFO] Elapsed time 15.569998025894165 seconds.
 [INFO] Acceptance ratio 0.47346698113207547.
 [INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 3392 iterations.
-[INFO] Remaining time 604787.3169670105 seconds
+[INFO] Remaining time 604784.4299981594 seconds
 [INFO] Remaining iterations 0
 [INFO] Current sample [1.689095266084419, 5.674866003872746, 17.65988884199932].
 [INFO] Current loglikelihood -83.41017013721766.
 [INFO] END STATUS
-[INFO]     current time 2025-01-15T10:41:16.534.
-[INFO]     elapsed time: 12.714350938796997 seconds.
+[INFO]     current time 2025-01-16T12:03:02.177.
+[INFO]     elapsed time: 15.603338956832886 seconds.
 [INFO]     timeout: false.
 [INFO]     max iters reached: true.
 [INFO]     number of unique samples: 93492.

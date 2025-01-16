@@ -3,83 +3,56 @@ function logpdf!(
     model::StateSpaceModel, paramseq::MTBPParamsSequence, observations::Observations, 
     approx::MTBPLikelihoodApproximationMethods, customitersetup=nothing, verbose=true,
 )
-    # initialise
-    iteration = 1
-
-    obs = first(observations)
-    currtime = gettime(obs)
-    obs_value = getvalue(obs)
-
-    currparams, nextparamidx = iterate(paramseq)
-    paramtime = gettime(currparams)
-    if paramtime > currtime
-        error("Initial parameter timestamp must before the timestamp of the first observation.")
-    end
-    if !insupport(currparams)
-        return -Inf
-    end
-    setparams!(model, currparams)
-    nextparamtime = nextparamidx <= length(paramseq) ? gettime(paramseq[nextparamidx]) : Inf
-    
-    use_prev_iter_params = true
-    dt = nothing
-    itersetup!(approx, model, dt, obs_value, iteration, use_prev_iter_params)
-    if customitersetup !== nothing
-        customitersetup(approx, model, nothing, obs_value, iteration, use_prev_iter_params)
-    end
-
-    loglikelihood = init!(approx, model, obs_value)
-
-    prevtime = currtime
-    prevdt = dt
+    iteration = 0
+    currtime = zero(gettime(first(observations)))
+    nextparamtime = gettime(first(paramseq))
+    iszero(nextparamtime) || error("First paramseq timestamp must be 0, got $(nextparamtime).")
+    nextparamidx = firstindex(paramseq)
+    loglikelihood = zero(paramtype(model))
+    prevdt = nothing
 
     # iterate
-    for obs in Iterators.drop(observations, 1)
-        iteration += 1
-        currtime = gettime(obs)
-
-        paramschanged = currtime == nextparamtime
-        
-        if paramschanged
+    for obs in observations
+        # set params
+        # this occurs at the time of the previous observation timestamp 
+        # (or at timestamp 0 if this is the first iteration)
+        updateparams = (currtime == nextparamtime)
+        if updateparams
             currparams, nextparamidx = iterate(paramseq, nextparamidx)
             if !insupport(currparams)
                 return -Inf
             end
-            nextparamtime = nextparamidx <= length(paramseq) ? gettime(paramseq[nextparamidx]) : Inf
-
             setparams!(model, currparams)
+
+            nextparamtime = nextparamidx <= length(paramseq) ? gettime(paramseq[nextparamidx]) : Inf
         elseif currtime > nextparamtime
             println(paramseq)
             error("Parameters at timestamp $nextparamtime. Parameter timestamp must equal an observation timestamp.")
         end
 
+        # now move to the time of the observation
+        prevtime = currtime
+        iteration += 1
+        currtime = gettime(obs)
         dt = currtime - prevtime
         obs_value = getvalue(obs)
 
-        use_prev_iter_params = (!paramschanged) && (dt==prevdt)
-        itersetup!(approx, model, dt, obs_value, iteration, use_prev_iter_params)
-        if customitersetup !== nothing
-            customitersetup(approx, model, dt, obs_value, iteration, use_prev_iter_params)
-        end
-
-        loglikelihood += iterate!(approx, model, dt, obs_value)
-        prevtime = currtime
-        prevdt = dt
-
-        if isinf(loglikelihood)
-            # if verbose 
-            #     println("Negative log-loglikelihood with params: ")
-            #     println(currparams)
-            #     println("obs value:")
-            #     println(obs_value)
-            # end
+        # if the parameters have not been update and the timestep, dt, has not changed
+        # then we can save some computations by setting this boolean to true
+        use_prev_iter_params = (!updateparams) && (dt==prevdt)
+        
+        loglikelihood += iterate!(approx, model, dt, obs_value, iteration, use_prev_iter_params, customitersetup)
+        
+        if isinf(loglikelihood) && loglikelihood < zero(loglikelihood)
+            # loglikelihood is negative infinity, so we can shortcut further computations and return
             return loglikelihood
         end
+        prevdt = dt
     end
 
     # Warn unused params
     if verbose && nextparamidx != length(paramseq)+1
-        println("[WARN] Unused parameters in paramseq.")
+        @warn "Unused parameters in paramseq."
     end
     return loglikelihood
 end

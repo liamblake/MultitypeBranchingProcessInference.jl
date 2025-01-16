@@ -20,7 +20,9 @@ model:
     cov: [1.0]
 
 inference:
-  data_filename: data/observations.csv
+  data: 
+    filename: data/observations.csv
+    first_observation_time: 1.0
   likelihood_approx:
     method: kalman_filter
     switch:

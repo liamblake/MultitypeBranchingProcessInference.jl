@@ -35,33 +35,30 @@ function MTBPKalmanFilterApproximation(
 end
 
 function init!(
-    f::MTBPKalmanFilterApproximation, ssm::StateSpaceModel{S,O}, observation, 
+    f::MTBPKalmanFilterApproximation, ssm::StateSpaceModel{S,O}, 
 ) where {S<:MultitypeBranchingProcess, O<:LinearGaussianObservationModel}
     mtbp = ssm.stateprocess
     kf = f.kalmanfilter
 
-    kf.predicted_state .= mtbp.initial_state.first_moments
+    kf.state_estimate .= mtbp.initial_state.first_moments
     
     # E[ZZ'] - E[Z]E[Z']
     for i in axes(kf._state_cache, 1)
-        kf._state_cache[i, 1] = -kf.predicted_state[i]
+        kf._state_cache[i, 1] = -kf.state_estimate[i]
     end
-    mul!(kf.predicted_state_covariance, @view(kf._state_cache[:, 1]), kf.predicted_state')
-    kf.predicted_state_covariance .+= mtbp.initial_state.second_moments
-
-    ll = update!(kf, observation, true)
-
-    for x in kf.state_estimate
-        if x < zero(x)
-            return -Inf
-        end
-    end
-    return ll 
+    mul!(kf.state_estimate_covariance, @view(kf._state_cache[:, 1]), kf.state_estimate')
+    kf.state_estimate_covariance .+= mtbp.initial_state.second_moments
+    return 
 end
 
 function iterate!(
-    f::MTBPKalmanFilterApproximation, ssm::StateSpaceModel{S,O}, dt, observation,
+    f::MTBPKalmanFilterApproximation, 
+    ssm::StateSpaceModel{S,O}, dt, observation, 
+    iteration::Real, use_prev_iter_params::Bool,
+    customitersetup=nothing,
 ) where {S<:MultitypeBranchingProcess, O<:LinearGaussianObservationModel} 
+    itersetup!(f, ssm, dt, observation, iteration, use_prev_iter_params, customitersetup)
+
     kf = f.kalmanfilter
 
     predict!(kf)
@@ -78,13 +75,17 @@ end
 
 function itersetup!(
     f::MTBPKalmanFilterApproximation,
-    model::StateSpaceModel, dt::Union{Real,Nothing}, observation, 
+    model::StateSpaceModel, dt::Real, observation, 
     iteration::Real, use_prev_iter_params::Bool,
+    customitersetup=nothing,
 )
+    isfirstiter = iteration==one(iteration)
+    isfirstiter && init!(f, model)
+
     kf = f.kalmanfilter
     op = f.moments_operator
 
-    if !use_prev_iter_params
+    if !use_prev_iter_params || isfirstiter
         mtbp = model.stateprocess
         moments!(op, mtbp, dt)
     end
@@ -98,5 +99,9 @@ function itersetup!(
     kf._state_cache .= kf.state_transition_covariance
     kf.state_transition_covariance .+= kf._state_cache'
     kf.state_transition_covariance ./= 2
+
+    if customitersetup !== nothing
+        customitersetup(f, model, dt, observation, iteration, use_prev_iter_params)
+    end
     return 
 end

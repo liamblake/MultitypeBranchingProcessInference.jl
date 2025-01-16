@@ -46,7 +46,7 @@ function main(argv)
 
     samples = read_datasets([datafilepath], [datafilename], config["inference"]["mh_config"]["nadapt"])
 
-    observations = read_observations(joinpath(pwd(), config["inference"]["data_filename"]))
+    observations = read_observations(joinpath(pwd(), config["inference"]["data"]["filename"]))
     observations = vcat(observations...)
 
     paramnames = [
@@ -54,7 +54,9 @@ function main(argv)
     ]
 
     chains_ = datasetstochains(samples, paramnames)
-    chainsummaryfilename = joinpath(pwd(), "data", replace(datafilepath, "." => "_", " " => "_", "/" => "_", "\\" => "_"))
+    summaryfilename = "$datafilepath-samples_file_$(argv[2])"
+    summaryfilename = replace(summaryfilename, "." => "_", " " => "_", "/" => "_", "\\" => "_")
+    chainsummaryfilename = joinpath(pwd(), "data", summaryfilename)
     chainsummaryfilename = "$chainsummaryfilename.summary.txt"
     open(chainsummaryfilename, "w") do io
         display(TextDisplay(io), chains_[datafilename])
@@ -63,7 +65,7 @@ function main(argv)
     # diagnostic trace plot
     trace_plt = plot(chains_[datafilename])
 
-    trace_plt_figname = "traceplot-config_file_$(argv[1])-dataset_$(config["inference"]["data_filename"])"
+    trace_plt_figname = "traceplot-config_file_$(argv[1])-samples_file_$(argv[2])-dataset_$(config["inference"]["data"]["filename"])"
     trace_plt_figname = replace(trace_plt_figname, "." => "_", " " => "_", "/" => "_", "\\" => "_")
     trace_plt_figname = joinpath(pwd(), "figs", "$trace_plt_figname.$FIGURE_FILE_EXT")
     savefig(trace_plt, trace_plt_figname)
@@ -89,7 +91,7 @@ function main(argv)
     plot!(p, xlims=(0,5))
     plot!(p, xticks=(0:0.5:5, ["$(10*(i-1))" for i in 1:11]), xlabel="Days")
     
-    figname = "R_0_densities_and_cases-config_file_$(argv[1])-dataset_$(config["inference"]["data_filename"])"
+    figname = "R_0_densities_and_cases-config_file_$(argv[1])-samples_file_$(argv[2])-dataset_$(config["inference"]["data"]["filename"])"
     figname = replace(figname, "." => "_", " " => "_", "/" => "_", "\\" => "_")
     figname = joinpath(pwd(), "figs", "$figname.$FIGURE_FILE_EXT")
     savefig(p, figname)

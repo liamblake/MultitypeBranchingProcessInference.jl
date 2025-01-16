@@ -33,6 +33,7 @@ function simulate!(
     t,
     deathdistribution=m._deathdistribution
 )
+    t < zero(t) && error("Argument error: simulation time increment, t, must be non-negative.")
     # rate of next event
     total_rate = transition_event_params!(m, state, deathdistribution)
     # next event time

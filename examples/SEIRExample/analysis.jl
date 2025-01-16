@@ -8,6 +8,7 @@ using MultitypeBranchingProcessInference
 
 include("./utils/config.jl")
 include("./utils/figs.jl")
+include("./utils/io.jl")
 
 function read_datasets(filenames, datasetnames, applyrounding, nburnin, paramnames)
     datasets = Dict{String, Array{Float64,2}}()
@@ -74,7 +75,7 @@ function make1dposteriorpdf(chains, paramname, prior=nothing)
     return p
 end
 
-function makechangepointpmf(chains, prior=nothing)
+function makechangepointpmf(chains, prior, cases)
     paramname = :t_q
     p = plot(xlabel=L"t_q", ylabel="Probability")
     chainid = 1
@@ -88,9 +89,12 @@ function makechangepointpmf(chains, prior=nothing)
             bins=(m-0.5):1:(M+0.5), label=datasetname, color=cmap(chainid), alpha=0.2, normalize=:probability, legend=:topleft)
         chainid += 1
     end
+    x = 0:length(cases)-1
+    y = cases
+    scatter!(twinx(p), x, y; label="Daily cases", ylabel="Daily cases", legend=:topright,
+        color=:black, linestyle=:solid)
     if prior!==nothing
-        xlims_=xlims(p)
-        x = round(Int, xlims_[1], RoundDown):1:xlims_[2]
+        x = 1:29
         plot!(p, x, x->pdf(prior, x); label="Prior", color=cmap(chainid+1), linestyle=smap(3))
     end
     return p
@@ -184,7 +188,12 @@ function main(argv)
             end
         end
         prior = only(discpriordists)
-        densityplots[:t_q] = makechangepointpmf(chains, prior)
+        
+        path, t = readparticles(joinpath(pwd(), config["simulation"]["outfilename"]))
+        # only need daily cases
+        cases = pathtodailycases(path, 5)
+        cases = [only(c) for c in cases]
+        densityplots[:t_q] = makechangepointpmf(chains, prior, cases)
     end
 
     caseidentifier = "config_$(argv[1])_$(join(keys(chains), "-"))"

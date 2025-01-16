@@ -10,25 +10,24 @@ function particlefilter!(
     check_inputs && particlefilter_checks(rng, model, particles)
     
     # initialise
-    iteration = 1
-    obs = first(observations.data)
-    loglikelihood = init!(rng, model, getvalue(obs), particles, thread_info)
-    prevtime = gettime(obs)
+    init!(rng, model, particles, thread_info)
     if callback!==nothing
         callback(particles, model, observations, iteration)
     end
 
     # iterate
-    for obs in Iterators.drop(observations.data, 1)
+    iteration = 0
+    prevtime = zero(gettime(first(observations.data)))
+    for obs in observations.data
         iteration += 1
         currtime = gettime(obs)
         dt = currtime - prevtime
         observation = getvalue(obs)
-        prevtime = currtime
         loglikelihood += iterate!(rng, particles, model, dt, observation, thread_info)
         if callback!==nothing
             callback(particles, model, observations, iteration)
         end
+        prevtime = currtime
     end
     return loglikelihood
 end
@@ -37,13 +36,9 @@ function init!(
     rng::AbstractRNG, 
     particles::ParticleStore, 
     model,
-    observation,
     thread_info=SingleThreadded(),
 )
-    initstate!(rng, particles, model, thread_info)
-    loglikelihood = calcweights!(particles, model, observation)
-    resample!(rng, particles)
-    return loglikelihood
+    return initstate!(rng, particles, model, thread_info)
 end
 
 function iterate!(

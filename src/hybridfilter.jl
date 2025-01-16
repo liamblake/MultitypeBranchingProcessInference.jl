@@ -101,12 +101,14 @@ function itersetup!(
     hf::HybridFilterApproximation,
     model::StateSpaceModel, dt::Union{Real,Nothing}, observation, 
     iteration::Real, use_prev_iter_params::Bool,
+    customitersetup=nothing,
 )
+    isfirstiter = (iteration == one(iteration))
+    isfirstiter && init!(hf, model)
+    
     currfiltername = hf.switchparams.currfiltername
     currfilter = getfield(hf, currfiltername)
-    if iteration == one(iteration)
-        hf.switchparams.memcache.mu .= model.stateprocess.initial_state.first_moments
-    else 
+    if !isfirstiter
         mean!(hf.switchparams.memcache.mu, currfilter)
     end
     
@@ -120,11 +122,10 @@ function itersetup!(
     hf.switchparams.currfiltername = newfiltername
 
     # No switch of filter or is the init step (iteration == 1)
-    if newfiltername === currfiltername || iteration == one(iteration)
-        newfilter = getfield(hf, newfiltername)
-        itersetup!(newfilter, model, dt, observation, iteration, use_prev_iter_params)
-        # no more set up to be done
-        return 
+    if (newfiltername === currfiltername) || isfirstiter
+        # no more hf-specific set up to be done
+        # newfilter set up is executed by call to iterate for the specific filter
+        return false
     end
 
     newfilter = getfield(hf, newfiltername)
@@ -139,11 +140,6 @@ function itersetup!(
 
         mean!(kf.state_estimate, pfstore)
         vcov!(kf.state_estimate_covariance, pfstore, hf.switchparams.memcache.mu, hf.switchparams.memcache.vcovcache)
-        
-        # never use prev iter params upon a switch
-        use_prev_iter_params = false
-        itersetup!(kfapprox, model, dt, observation, iteration, use_prev_iter_params)
-        
     elseif (currfilter isa MTBPKalmanFilterApproximation 
         && newfilter isa ParticleFilterApproximation)
         # switch from KF to PF
@@ -172,26 +168,27 @@ function itersetup!(
         
         # fill the pfstore by sampling from dist
         initstate!(hf.switchparams.rng, pfstore, dist)
-
-        # never use prev iter params upon a switch
-        use_prev_iter_params = false
-        itersetup!(pfapprox, model, dt, observation, iteration, false)
     else 
         error("Unknown filterargs types.")
     end
-    return
+    if customitersetup !== nothing
+        customitersetup(hf, model, dt, observation, iteration, use_prev_iter_params)
+    end
+    return true
 end
 
 function init!(
-    f::HybridFilterApproximation, ssm::StateSpaceModel{S,O}, observation, 
+    f::HybridFilterApproximation, ssm::StateSpaceModel{S,O}, 
 ) where {S<:MultitypeBranchingProcess, O<:LinearGaussianObservationModel}
-    filter = getfield(f, f.switchparams.currfiltername)
-    return init!(filter, ssm, observation)
+    f.switchparams.memcache.mu .= ssm.stateprocess.initial_state.first_moments
+    return 
 end
 
 function iterate!(
     f::HybridFilterApproximation, ssm::StateSpaceModel{S,O}, dt, observation,
+    iteration::Real, use_prev_iter_params::Bool, customitersetup=nothing,
 ) where {S<:MultitypeBranchingProcess, O<:LinearGaussianObservationModel} 
+    isswitch = itersetup!(f, ssm, dt, observation, iteration, use_prev_iter_params, customitersetup)
     filter = getfield(f, f.switchparams.currfiltername)
-    return iterate!(filter, ssm, dt, observation)
+    return iterate!(filter, ssm, dt, observation, iteration, use_prev_iter_params && !isswitch, customitersetup)
 end

@@ -31,17 +31,14 @@ function main(args)
 
     println("[INFO] Simulating...")
     
-    params, nextparamidx = iterate(param_seq)
-    setparams!(model, params)
-
-    nextparamtime = (nextparamidx > length(param_seq)) ? Inf : gettime(param_seq[nextparamidx])
+    nextparamidx = firstindex(param_seq)
+    nextparamtime = gettime(first(param_seq))
+    iszero(nextparamtime) || error("First param timestamp in paramseq must be 0, got $nextparamtime")
     
     open(joinpath(pwd(), writefilename), "w") do io
         write(io, Int64(nsteps+1))
         writeparticle(io, mtbp.state, t)
-        for _ in 1:nsteps
-            t += tstep
-    
+        for _ in 1:nsteps    
             if t == nextparamtime
                 params, nextparamidx = iterate(param_seq, nextparamidx)
                 setparams!(model, params)
@@ -49,7 +46,8 @@ function main(args)
             elseif t > nextparamtime 
                 error("Parameters at timestamp $nextparamtime. Parameter timestamp must equal an observation timestamp.")
             end
-    
+            
+            t += tstep
             simulate!(rng, mtbp, tstep)
             writeparticle(io, mtbp.state, t)
         end

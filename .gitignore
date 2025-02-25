@@ -16,6 +16,9 @@
 # **/**.bin
 # **/**.info.txt
 
+# ignore this specific large data file as it can't be pushed to GitHub
+examples/VicCOVID/data/vic_covid_kalman_param_samples.f64_array.bin
+
 # settings
 **/**.vscode
 **/**.DS_Store

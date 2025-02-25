@@ -57,7 +57,7 @@ function makeplot(particles, mtbp)
         end
         plot!(series[:,2], series[:,3], alpha=0.1, color=:grey, label=false)
     end
-    plot!(xlabel="Adolescents", ylabel="Adults")
+    plot!(xlabel="Exposed", ylabel="Infectious")
     
     scattertimes = [20; 60; 100]
     colours = [:red, :blue, :green]
@@ -111,7 +111,7 @@ function makeqq(particles, mtbp)
             p = qqplot(Normal(mu[i], sqrt(vcov[i,i])), particles[t][:,i], 
                 ylabel=i==1 ? "t=$t\nSample Quantiles" : "", 
                 xlabel=t==100 ? "Theoretical Quantiles" : "",
-                title=t==20 ? (i==1 ? "Adolescents" : "Adults") : "",
+                title=t==20 ? (i==1 ? "Exposed" : "Infectious") : "",
                 grid=nothing)
             push!(plots, p)
         end

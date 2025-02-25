@@ -85,7 +85,8 @@ function makechangepointpmf(chains, prior, cases)
         if (m%1) != 0 || (M%1) != 0
             error("t_q samples must be integers")
         end
-        histogram!(p, chain[:t_q]; 
+        # add 1 to t_q samples to correct for delay until observation of change
+        histogram!(p, chain[:t_q].+1; 
             bins=(m-0.5):1:(M+0.5), label=datasetname, color=cmap(chainid), alpha=0.2, normalize=:probability, legend=:topleft)
         chainid += 1
     end
@@ -209,10 +210,6 @@ function main(argv)
         savefig(plt, figfilename)
     end
 
-    tmp = joinpath(pwd(), "gr-temp")
-    println("Press any key to remove the temporary folder at $tmp (or press Ctrl-c to cancel).")
-    readline(stdin)
-    rm(tmp; force=true, recursive=true)
     return 
 end
 

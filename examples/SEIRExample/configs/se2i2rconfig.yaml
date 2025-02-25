@@ -13,6 +13,7 @@ model:
       E_state_count: 2
       I_state_count: 2
       is_time_homogeneous: false
+      # change point at t=9 affect samples at t>9 (i.e. sample at time 10 onwards)
       timestamps: [0.0, 9.0]
       # delta = 1/6, mean latence of 6 days
       exposed_stage_chage_rate: [0.3333333333333333, 0.3333333333333333]

@@ -184,7 +184,7 @@ function metropolis_hastings(rng::AbstractRNG, loglikelihood_fn, prior_logpdf_fn
 
     # allocate space for samples
     proposed_sample = Vector{eltype(mh_config.init_sample)}(undef, mh_config.nparams)
-    samples_buffer = SamplesBuffer(mh_config.init_sample, mh_config.samples_write_buffer_size)
+    samples_buffer = SamplesBuffer(mh_config.init_sample, mh_config.samples_write_buffer_size, current_log_accept_ratio_contrib)
 
     open(mh_config.info_file, "a") do info_io
     open(mh_config.samples_write_file, "a") do samples_io
@@ -210,7 +210,7 @@ function metropolis_hastings(rng::AbstractRNG, loglikelihood_fn, prior_logpdf_fn
             # accept/reject
             samples_count += 1
             if log(rand(rng)) <= log_accept_ratio
-                current_sample = addsample!(samples_buffer, proposed_sample)
+                current_sample = addsample!(samples_buffer, proposed_sample, proposed_log_accept_ratio_contrib)
                 setstate!(symmetric_proposal_distribution, current_sample)
                 current_log_accept_ratio_contrib, current_loglikelihood_value = proposed_log_accept_ratio_contrib, proposed_loglikelihood_value
             else 
@@ -234,7 +234,7 @@ function metropolis_hastings(rng::AbstractRNG, loglikelihood_fn, prior_logpdf_fn
         writepartialbuffer!(samples_io, samples_buffer)
         _printinfo_endstatus(mh_config.verbose, info_io, start_time_sec, mh_config, samples_count, maxsamples, position(samples_io), position(seekend(samples_io)), totalinfiniteloglikelihoodscount, uniquesamplescount)
         # now that the number of samples is known, add the file header
-        header = (mh_config.nparams, samples_count)
+        header = (mh_config.nparams+1, samples_count)
         write_binary_array_file_header(samples_io, header)
     end # close params io
     end # close info io

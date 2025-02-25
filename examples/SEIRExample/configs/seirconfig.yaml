@@ -69,7 +69,7 @@ inference:
 state_inference:
   pfseed: 2021222324
   switchseed: 2526272829
-  threshold: 6
+  threshold: 10
   nparticles: 32768
   tsteps: [9, 36, 51]
   states: [1, 2]

@@ -224,7 +224,7 @@ function main(argv)
         StatsPlots.quantile(times_log2sec, 0.995)-only(y)
     )]
     scatter!(plot!(), x, y; yerror=yerr,
-        color=cmap(colour_id), label="Kalman")
+        color=cmap(colour_id), label="Gaussian approx.")
 
     addformatting!(plot!())
     
@@ -233,10 +233,6 @@ function main(argv)
     figname = joinpath(pwd(), "figs", "$figname.$FIGURE_FILE_EXT")
     savefig(plot!(), figname)
     
-    tmp = joinpath(pwd(), "gr-temp")
-    println("Press any key to remove the temporary folder at $tmp (or press Ctrl-c to cancel).")
-    readline(stdin)
-    rm(tmp; force=true, recursive=true)
     return plot!()
 end
 

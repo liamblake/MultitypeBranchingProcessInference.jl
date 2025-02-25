@@ -48,7 +48,7 @@ function makestateestimateplot(tstep, stateidx, config)
     # get distribution parameters for state estimates and add density to plot
     mu = kf.kalmanfilter.state_estimate[stateidx]
     sigma = sqrt(kf.kalmanfilter.state_estimate_covariance[stateidx,stateidx])
-    plot!(xl:0.05:xr, x -> pdf(Normal(mu, sigma), x), label="Kalman")
+    plot!(xl:0.05:xr, x -> pdf(Normal(mu, sigma), x), label="Gaussian")
 
     # ensure seed of pf is the same at the start of every run
     Random.seed!(pf_rng, config["state_inference"]["pfseed"])
@@ -73,7 +73,7 @@ function makestateestimateplot(tstep, stateidx, config)
     # add annotation for time stamp
     annotate!([xl+0.05*(xr-xl)], [0.9*yh], L"t=%$(t[tstep])")
     # other formatting
-    plot!(ylabel="Density", xlabel=L"[\mathbf{z}_t]_%$(stateidx)", grid=:off)
+    plot!(ylabel=L"Probability/Density, p(z_{%$(stateidx),t}|\mathbf{y}_{1:t})", xlabel=L"z_{%$(stateidx),t}", grid=:off)
     return plot!()
 end
 
@@ -94,11 +94,6 @@ function main(argv)
             savefig(p, figname)
         end
     end
-
-    tmp = joinpath(pwd(), "gr-temp")
-    println("Press any key to remove the temporary folder at $tmp (or press Ctrl-c to cancel).")
-    readline(stdin)
-    rm(tmp; force=true, recursive=true)
 end
 
 main(ARGS)

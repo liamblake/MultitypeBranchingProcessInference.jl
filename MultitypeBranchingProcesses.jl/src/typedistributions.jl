@@ -35,10 +35,10 @@ end
 function dummy_mtbp_discrete_distribution(ntypes, statetype, partype)
     return MTBPDiscreteDistribution(
         ntypes, 
-        0,                            # n events
-        zeros(partype, 0),            # progeny cdf
-        statetype[],                  # progeny events
-        zeros(partype, ntypes),       # first moment
+        0,                             # n events
+        zeros(partype, 0),             # progeny cdf
+        statetype[],                   # progeny events
+        zeros(partype, ntypes),        # first moment
         zeros(partype, ntypes, ntypes) # second moments
     )
 end

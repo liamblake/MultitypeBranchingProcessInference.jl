@@ -38,7 +38,7 @@ function logpdf!(
         obs_value = getvalue(obs)
 
         # if the parameters have not been update and the timestep, dt, has not changed
-        # then we can save some computations by setting this boolean to true
+        # then we can save some computations
         use_prev_iter_params = (!updateparams) && (dt==prevdt)
         
         loglikelihood += iterate!(approx, model, dt, obs_value, iteration, use_prev_iter_params, customitersetup)

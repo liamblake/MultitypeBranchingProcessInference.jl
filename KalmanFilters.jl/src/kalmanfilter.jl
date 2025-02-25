@@ -240,6 +240,10 @@ function update!(kf::KalmanFilter, obs::AbstractVector, returnloglikelihood=true
     # P(k|k-1)H'
     mul!(kf._gain, kf.predicted_state_covariance, kf.observation_model')
     # P(k|k-1)H'/S(k)
+    # An error can be thrown here when _residual_covariance is not pos-def
+    # the cause can be numerical error in the calculation of the MTBP moments
+    # which can occur particularly when the MTBP rates are large numbers
+    # TODO: implement fix -- either detect when this occurs or implement more stable moments calculation
     chol = cholesky!(kf._residual_covariance)
     rdiv!(kf._gain, chol)
 

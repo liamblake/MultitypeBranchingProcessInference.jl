@@ -23,8 +23,8 @@ function MetropolisHastings.setstate!(mvn_proposal::MutableMvNormal, value)
     return 
 end
 
-function MetropolisHastings.adapt!(mvn_proposal::MutableMvNormal, param_samples, scale)
-    cov_mat = cov(param_samples, dims=2)
+function MetropolisHastings.adapt!(mvn_proposal::MutableMvNormal, param_samples, scale, exclude_ll=true)
+    cov_mat = cov(@view(param_samples[1:end-1,:]), dims=2)
     if cov_mat == zero(cov_mat) || !isposdef(cov_mat)
         # not enough samples
         return 

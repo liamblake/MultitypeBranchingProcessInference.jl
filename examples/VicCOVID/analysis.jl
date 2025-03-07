@@ -4,6 +4,10 @@ using StatsPlots
 using YAML
 using LaTeXStrings
 using KernelDensity
+using PDMats
+using Distributions
+using Random
+import Random.rand!
 
 include("./utils/config.jl")
 include("./utils/figs.jl")

@@ -1,8 +1,13 @@
 using YAML
 using Random
 using LinearAlgebra
-using Distributions
 using MultitypeBranchingProcessInference
+using Distributions
+using PDMats
+using Random
+
+import Random.rand!
+import Distributions.logpdf
 
 include("./utils/config.jl")
 

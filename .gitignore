@@ -18,6 +18,7 @@
 
 # ignore this specific large data file as it can't be pushed to GitHub
 examples/VicCOVID/data/vic_covid_kalman_param_samples.f64_array.bin
+examples/VicCOVID/data/expcovfn_vic_covid_kalman_param_samples.f64_array.bin
 
 # settings
 **/**.vscode

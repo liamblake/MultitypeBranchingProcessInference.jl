@@ -1,0 +1,74 @@
+env:
+  blas_num_threads: 1
+
+simulation:
+  seed: 12345
+  outfilename: data/se2i2r_sim_particles.int64_array.bin
+  tstep: 1
+  nsteps: 100
+
+
+model:
+  stateprocess:
+    params:
+      E_state_count: 2
+      I_state_count: 2
+      is_time_homogeneous: false
+      timestamps: [0.0, 7.0, 14.0, 21.0, 28.0, 35.0, 42.0, 49.0, 56.0, 63.0, 70.0, 77.0, 84.0, 91.0]
+      # [1/x * 7.2 * sin(2 * pi * x / 75) + 1 for x in [0.0, 7.0, 14.0, 21.0, 28.0, 35.0, 42.0, 49.0, 56.0, 63.0, 70.0, 77.0, 84.0, 91.0]]
+      R_0: [1.6, 1.5692027363645824, 1.4741010493883717, 1.336784200249836, 1.1837215461912922, 1.042770404968225, 0.9368929338254838, 0.879341340698721, 0.8714567692675199, 0.9035053799426269, 0.9581642309979176, 1.0155939607318953, 1.0586754662224591, 1.0770304186888655]
+      T_E: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
+      T_I: [8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0]
+      observation_probability: 0.8
+      immigration_rate: [0.0, 0.0, 0.0, 0.0]
+    # [E, E, I, I, O, R]
+    initial_state: [30, 30, 30, 30, 0, 0]
+  observation:
+    mean: [0.0]
+    cov: [1.0]
+
+inference:
+  likelihood_approx:
+    method: hybrid
+    switch:
+      threshold: 20
+      seed: 1516171819
+    particle_filter:
+      seed: 67890
+      nparticles: 256
+  prior_parameters:
+    R_0:
+      shape: 2.5
+      scale: 1.0
+    T_E:
+      shape: 60.0
+      scale: 0.1
+    T_I:
+      shape: 26.0
+      scale: 0.5
+    intervention:
+      time:
+        lower: 1
+        upper: 29
+      effect:
+        alpha: 1.1
+        beta: 1.5
+  proposal_parameters:
+    mean: [0.0, 0.0, 0.0, 0.0, 0.0]
+    cov: [1.2837017701180853, 0.290737220663126, 1.2806580202715543, -0.008863293146980342, -0.8277080285547781, 0.290737220663126, 0.21357529820017643, -0.1477828735610202, -0.004707003764855956, -0.3131445063089793, 1.2806580202715543, -0.1477828735610202, 5.344966201260238, -0.0006328660165885703, 0.44973680593521337, -0.008863293146980342, -0.004707003764855956, -0.0006328660165885703, 0.00027709766913594145, 0.00558025156711865, -0.8277080285547781, -0.3131445063089793, 0.44973680593521337, 0.00558025156711865, 1.2866831422353715]
+  mh_config:
+    seed: 1011121314
+    buffer_size: 16384
+    outfilename: data/se2i2r_particle_param_samples.f64_array.bin
+    max_iters: 600000
+    nparams: 5
+    # max_time_sec: 1500.0
+    max_time_sec: 604800.0 # 1 week!
+    # [R_0, T_E, T_I]
+    init_sample: [3.0, 6.0, 12.0, 0.1, 10.0]
+    verbose: true
+    infofilename: data/se2i2r_particle.info.txt
+    adaptive: true
+    nadapt: 65536
+    adapt_cov_scale: 0.8
+    continue: false

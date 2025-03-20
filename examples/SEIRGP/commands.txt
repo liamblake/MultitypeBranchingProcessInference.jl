@@ -1,0 +1,7 @@
+julia --project=../. simulate.jl config.yaml
+julia --project=../. state_inference.jl config.yaml
+
+julia --project=../. inference.jl config.yaml
+
+julia --project=../. analysis.jl config.yaml "name1=dataset1.bin" "name2=dataset2.bin" ... "nameN=datasetN.bin"
+

@@ -1,5 +1,4 @@
 julia --project=../. simulate.jl config.yaml
-julia --project=../. state_inference.jl config.yaml
 
 julia --project=../. plotobservations.jl config.yaml
 

@@ -1,6 +1,6 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.2"
+julia_version = "1.11.4"
 manifest_format = "2.0"
 project_hash = "07660078048d4c2b40f0a428b6dbe9c1f3673c42"
 
@@ -902,7 +902,7 @@ version = "2023.12.12"
 
 [[deps.MultitypeBranchingProcessInference]]
 deps = ["Distributions", "KalmanFilters", "LinearAlgebra", "MetropolisHastings", "MultitypeBranchingProcesses", "ParticleFilter", "Random", "Reexport"]
-path = "/Users/a1627293/Academic/Projects/Epidemics/MultitypeBranchingProcessInference.jl/examples/deps/../../../MultitypeBranchingProcessInference.jl"
+path = ".."
 uuid = "308293ef-aee2-4ae5-b65c-832e3cc62f62"
 version = "1.0.0-DEV"
 
@@ -967,7 +967,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]

@@ -275,27 +275,18 @@ function makeloglikelihood(model, param_seq, observations, config)
             param, seirconfig["immigration_rate"], true
         )
     end
-    if "intervention" in keys(config["inference"]["prior_parameters"])
-        pre_intervention_params = zeros(paramtype(model), 3)
-        post_intervention_params = zeros(paramtype(model), 3)
-        loglikelihood = (pars) -> begin # function loglikelihood(pars)
-            # pre-itervention
-            pre_intervention_params .= pars[1:3]
-            llparam_map!(param_seq[1], pre_intervention_params)
 
-            # post-itervention and intervention time
-            post_intervention_params .= pre_intervention_params
-            post_intervention_params[1] *= pars[4]
-            llparam_map!(param_seq[2], post_intervention_params)
-            param_seq[2].time = round(typeof(param_seq[2].time), pars[5])
+    curr_params = zeros(paramtype(model), 3)
+    nparam_per_stage = 3
 
-            return logpdf!(model, param_seq, observations, approx, reset_obs_state_iter_setup!)
+    loglikelihood = (pars) -> begin # function loglikelihood(pars)
+        curr_params[2:nparam_per_stage] .= pars[1:(nparam_per_stage-1)]
+        for i in eachindex(param_seq.seq)
+            curr_params[1] = pars[i-1+nparam_per_stage]
+            llparam_map!(param_seq[i], pars)
         end
-    else
-        loglikelihood = (pars) -> begin # function loglikelihood(pars)
-            llparam_map!(only(param_seq), pars)
-            return logpdf!(model, param_seq, observations, approx, reset_obs_state_iter_setup!)
-        end
+
+        return logpdf!(model, param_seq, observations, approx, reset_obs_state_iter_setup!)
     end
     return loglikelihood
 end

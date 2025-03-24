@@ -32,3 +32,4 @@ examples/VicCOVID/data/expcovfn_vic_covid_kalman_param_samples.f64_array.bin
 **/**.gz
 
 gr-temp/
+**/scratchpad.jl

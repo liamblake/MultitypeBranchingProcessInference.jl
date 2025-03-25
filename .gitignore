@@ -20,6 +20,9 @@
 examples/VicCOVID/data/vic_covid_kalman_param_samples.f64_array.bin
 examples/VicCOVID/data/expcovfn_vic_covid_kalman_param_samples.f64_array.bin
 
+# more large data files
+examples/SEIRGP/data/*.f64_array.bin
+
 # settings
 **/**.vscode
 **/**.DS_Store

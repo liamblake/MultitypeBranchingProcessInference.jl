@@ -4,8 +4,12 @@ using Random
 using MCMCChains
 using LinearAlgebra
 using DelimitedFiles
+using PDMats
 
 using MultitypeBranchingProcessInference
+
+import Random.rand!
+import Distributions.logpdf
 
 include("./utils/config.jl")
 include("./utils/io.jl")

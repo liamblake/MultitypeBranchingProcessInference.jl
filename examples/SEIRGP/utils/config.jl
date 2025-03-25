@@ -1,3 +1,8 @@
+using PDMats
+using Random
+
+include("../../VicCOVID/utils/gaussianprocesses.jl")
+
 function setenvironment!(config)
     if "env" in keys(config) && "blas_num_threads" in keys(config["env"])
         LinearAlgebra.BLAS.set_num_threads(config["env"]["blas_num_threads"])
@@ -84,7 +89,8 @@ function makemodel(config)
         seirconfig["E_state_count"], seirconfig["I_state_count"],
     )
     seir = SEIR(
-        seirconfig["E_state_count"], seirconfig["I_state_count"],
+        seirconfig["E_state_count"],
+        seirconfig["I_state_count"],
         beta,
         delta,
         lambda,
@@ -115,7 +121,7 @@ function makemodel(config)
         )
         push!(param_seq.seq, mtbpparams)
     else
-        for i in eachindex(seirconfig["timestamps"])
+        for i in eachindex(seirconfig["R_0"])
             mtbpparams = MTBPParams(seir)
             paramtimestamp = seirconfig["timestamps"][i]
             R_0 = seirconfig["R_0"][i]
@@ -124,7 +130,8 @@ function makemodel(config)
             immigration = seirconfig["immigration_rate"]
             param_map!(
                 mtbpparams,
-                seirconfig["E_state_count"], seirconfig["I_state_count"],
+                seirconfig["E_state_count"],
+                seirconfig["I_state_count"],
                 (R_0, T_E, T_I),
                 immigration
             )
@@ -136,47 +143,100 @@ function makemodel(config)
     return model, param_seq
 end
 
-function makepriordists(config)
-    cts_prior_dists = Any[
-        Gamma(config["inference"]["prior_parameters"]["R_0"]["shape"],
-            config["inference"]["prior_parameters"]["R_0"]["scale"]),
+function makeconstpriordists(config)
+    const_prior_dists = Any[
         Gamma(config["inference"]["prior_parameters"]["T_E"]["shape"],
             config["inference"]["prior_parameters"]["T_E"]["scale"]),
         Gamma(config["inference"]["prior_parameters"]["T_I"]["shape"],
             config["inference"]["prior_parameters"]["T_I"]["scale"]),
     ]
-    discrete_prior_dists = Any[]
 
-    if "intervention" in keys(config["inference"]["prior_parameters"])
-        push!(
-            cts_prior_dists,
-            Beta(config["inference"]["prior_parameters"]["intervention"]["effect"]["alpha"],
-                config["inference"]["prior_parameters"]["intervention"]["effect"]["beta"]),
-        )
-        push!(
-            discrete_prior_dists,
-            DiscreteUniform(config["inference"]["prior_parameters"]["intervention"]["time"]["lower"],
-                config["inference"]["prior_parameters"]["intervention"]["time"]["upper"]),
-        )
-    end
-    return cts_prior_dists, discrete_prior_dists
+    return tuple(const_prior_dists...)
 end
 
 function makeprior(config)
-    cts_prior_dists, discrete_prior_dists = makepriordists(config)
+    # Make prior distributions for time-homogeneous parameters
+    const_prior_dists = makeconstpriordists(config)
 
-    cts_prior_dists = tuple(cts_prior_dists...)
-    discrete_prior_dists = tuple(discrete_prior_dists...)
-
-    function prior_logpdf(params)
-        val = zero(eltype(params))
-        for i in eachindex(cts_prior_dists)
-            val += logpdf(cts_prior_dists[i], params[i])
+    if config["inference"]["prior_parameters"]["R_0"]["type"] == "random_walk_gamma_initial_dist"
+        init_dist = Gamma(config["inference"]["prior_parameters"]["R_0"]["shape"],
+            config["inference"]["prior_parameters"]["R_0"]["scale"])
+        sigma = config["inference"]["prior_parameters"]["R_0"]["sigma"]
+        R0prior = RandomWalkGammaInitialDistR0Prior(init_dist, sigma)
+        prior_logpdf = (params) -> begin
+            val = zero(eltype(params))
+            for i in eachindex(const_prior_dists)
+                val += logpdf(const_prior_dists[i], params[i])
+            end
+            val += logpdf(R0prior, params[(length(const_prior_dists)+1):end])
+            return val
         end
-        for i in eachindex(discrete_prior_dists)
-            val += logpdf(discrete_prior_dists[i], round(Int, params[i+length(cts_prior_dists)]))
+    elseif config["inference"]["prior_parameters"]["R_0"]["type"] == "gaussian_processes"
+        if config["inference"]["prior_parameters"]["R_0"]["covariance_function"] == "exponential"
+            cov_fun = ExponentialCovarianceFunction(
+                config["inference"]["prior_parameters"]["R_0"]["sigma"],
+                config["inference"]["prior_parameters"]["R_0"]["ell"]
+            )
+            timestamps = Matrix(reshape(Float64.(config["model"]["stateprocess"]["params"]["timestamps"]), 1, :))
+            mu = config["inference"]["prior_parameters"]["R_0"]["mu"]
+            R0prior = GaussianProcess(timestamps, mu, cov_fun)
+        elseif config["inference"]["prior_parameters"]["R_0"]["covariance_function"] == "squared_exponential"
+            cov_fun = SquaredExponentialCovarianceFunction(
+                config["inference"]["prior_parameters"]["R_0"]["sigma"],
+                config["inference"]["prior_parameters"]["R_0"]["ell"]
+            )
+            timestamps = Matrix(reshape(Float64.(config["model"]["stateprocess"]["params"]["timestamps"]), 1, :))
+            mu = config["inference"]["prior_parameters"]["R_0"]["mu"]
+            R0prior = GaussianProcess(timestamps, mu, cov_fun)
+        else
+            error("Unknown covariance function in config")
         end
-        return val
+        if config["inference"]["prior_parameters"]["R_0"]["transform"] == "log"
+            cache = zeros(Float64, length(timestamps))
+            prior_logpdf = (params) -> begin
+                if any(p -> p <= zero(p), params)
+                    return -Inf
+                end
+                val = zero(eltype(params))
+                for i in eachindex(const_prior_dists)
+                    val += logpdf(const_prior_dists[i], params[i])
+                end
+                for i in Iterators.drop(eachindex(params), length(const_prior_dists))
+                    cache[i-length(const_prior_dists)] = log(params[i])
+                end
+                val += logpdf(R0prior, cache)
+                return val
+            end
+        elseif config["inference"]["prior_parameters"]["R_0"]["transform"] == "sqrt"
+            cache = zeros(Float64, length(timestamps))
+            prior_logpdf = (params) -> begin
+                if any(p -> p <= zero(p), params)
+                    return -Inf
+                end
+                val = zero(eltype(params))
+                for i in eachindex(const_prior_dists)
+                    val += logpdf(const_prior_dists[i], params[i])
+                end
+                for i in Iterators.drop(eachindex(params), length(const_prior_dists))
+                    cache[i-length(const_prior_dists)] = sqrt(params[i])
+                end
+                val += logpdf(R0prior, cache)
+                return val
+            end
+        elseif config["inference"]["prior_parameters"]["R_0"]["transform"] == "none"
+            cache = zeros(Float64, length(timestamps))
+            prior_logpdf = (params) -> begin
+                val = zero(eltype(params))
+                for i in eachindex(const_prior_dists)
+                    val += logpdf(const_prior_dists[i], params[i])
+                end
+                cache .= params[(length(const_prior_dists)+1):end]
+                val += logpdf(R0prior, cache)
+                return val
+            end
+        end
+    else
+        error("Unknown prior R0 specififcation")
     end
     return prior_logpdf
 end

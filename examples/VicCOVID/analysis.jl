@@ -4,6 +4,7 @@ using StatsPlots
 using YAML
 using LaTeXStrings
 using KernelDensity
+using Distributions
 
 include("./utils/config.jl")
 include("./utils/figs.jl")

@@ -1,8 +1,8 @@
 using YAML
 using Random
 using LinearAlgebra
-using Distributions
 using MultitypeBranchingProcessInference
+using Distributions
 
 include("./utils/config.jl")
 

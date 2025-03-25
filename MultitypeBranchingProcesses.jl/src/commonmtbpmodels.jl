@@ -122,7 +122,7 @@ function SEIR(
     total_immigration_rate = sum(immigration_rates)
     if total_immigration_rate==zero(total_immigration_rate)
         # ensure cdf is proper
-        immigration_cdf = collect(range(zero(total_immigration_rate), one(total_immigration_rate), length(immigration_rates)))
+        immigration_cdf = collect(Iterators.drop(range(zero(total_immigration_rate), one(total_immigration_rate), length(immigration_rates)+1),1))
     else
         immigration_pmf = immigration_rates./total_immigration_rate
         immigration_cdf = cumsum(immigration_pmf)

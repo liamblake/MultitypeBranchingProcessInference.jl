@@ -1,3 +1,12 @@
+module GP
+using Distributions
+using PDMats
+using Random
+using LinearAlgebra
+
+import Random.rand!
+import Distributions.logpdf
+
 abstract type CovarianceFunction{F<:AbstractFloat} end
 
 function _d2(x, y)
@@ -234,4 +243,6 @@ function Random.rand!(rng::AbstractRNG, gp::GaussianProcess, out::AbstractVector
     mul!(out, gp.cov.chol.L, cache)
     out .+= gp.mu
     return out
+end
+
 end

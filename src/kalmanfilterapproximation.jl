@@ -3,6 +3,10 @@ struct MTBPKalmanFilterApproximation{KF<:KalmanFilter, M<:MTBPMomentsOperator}
     moments_operator::M
 end
 
+function array_to_marray(a)
+    return MArray{Tuple{size(a)...}}(a)
+end
+
 function MTBPKalmanFilterApproximation(
     ssm::StateSpaceModel{S,O}
 ) where {S<:MultitypeBranchingProcess, O<:LinearGaussianObservationModel}
@@ -11,22 +15,22 @@ function MTBPKalmanFilterApproximation(
     op = MTBPMomentsOperator(mtbp)
     moments!(op, mtbp)
 
-    initial_state_mean = mtbp.initial_state.first_moments
-    initial_state_cov = (
+    initial_state_mean = array_to_marray(mtbp.initial_state.first_moments)
+    initial_state_cov = array_to_marray(
         mtbp.initial_state.second_moments
         - mtbp.initial_state.first_moments*mtbp.initial_state.first_moments'
     )
     
-    kf_obs_model = ssm.observation_model.obs_map
+    kf_obs_model = array_to_marray(ssm.observation_model.obs_map)
     
     # wrap in Matrix because obs_model.cov is of type Cholesky
-    kf_obs_cov = Matrix(ssm.observation_model.cov)
+    kf_obs_cov = array_to_marray(Matrix(ssm.observation_model.cov))
 
     kf = KalmanFilter(
         initial_state_mean,
         initial_state_cov,
-        getmeanoperator(op),
-        variance_covariance(op, initial_state_mean),
+        array_to_marray(getmeanoperator(op)),
+        array_to_marray(variance_covariance(op, initial_state_mean)),
         kf_obs_model,
         kf_obs_cov,
     )

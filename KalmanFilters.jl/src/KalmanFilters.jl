@@ -1,6 +1,7 @@
 module KalmanFilters
 
 using LinearAlgebra
+using StaticArrays
 import Distributions: mean, mean!
 
 include("kalmanfilter.jl")

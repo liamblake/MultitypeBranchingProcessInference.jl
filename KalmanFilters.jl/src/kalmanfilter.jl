@@ -1,45 +1,52 @@
-struct KalmanFilter{M<:AbstractMatrix, V<:AbstractVector, F<:AbstractFloat}
+struct KalmanFilter{
+    Mss<:AbstractMatrix, Mos<:AbstractMatrix, Moo<:AbstractMatrix, Mso<:AbstractMatrix, 
+    Vs<:AbstractVector, Vo<:AbstractVector, 
+    F<:AbstractFloat
+}
     statesize::Int
     obssize::Int
 
     # x(k) = Fx(k-1) + w(k)
     # y(k) = Hx(k) + v(k)
-    state_transition_model::M      # F
-    state_transition_covariance::M # Q = cov(w(k))
-    observation_model::M           # H 
-    observation_covariance::M      # R = cov(v(k))
+    state_transition_model::Mss      # F
+    state_transition_covariance::Mss # Q = cov(w(k))
+    observation_model::Mos           # H 
+    observation_covariance::Moo      # R = cov(v(k))
 
-    state_estimate::V               # x̂(k|k) = E[x(k)|y(k),...,y(0)]
-    state_estimate_covariance::M    # P(k|k) = cov(x(k)|y(k),...,y(0))
-    predicted_state::V              # x̂(k|k-1) = E[x(k)|y(k-1),...,y(0)]
-    predicted_state_covariance::M   # P(k|k-1) = cov(x(k)|y(k-1),...,y(0))
-    _residual::V                    # ỹ(k) = z(k) - Hx̂(k|k-1)
-    _residual_covariance::M         # S(k) = cov(ỹ(k)|y(k-1),...,y(0))
-    _gain::M                        # K(k)
+    state_estimate::Vs                # x̂(k|k) = E[x(k)|y(k),...,y(0)]
+    state_estimate_covariance::Mss    # P(k|k) = cov(x(k)|y(k),...,y(0))
+    predicted_state::Vs               # x̂(k|k-1) = E[x(k)|y(k-1),...,y(0)]
+    predicted_state_covariance::Mss   # P(k|k-1) = cov(x(k)|y(k-1),...,y(0))
+    _residual::Vo                     # ỹ(k) = z(k) - Hx̂(k|k-1)
+    _residual_covariance::Moo         # S(k) = cov(ỹ(k)|y(k-1),...,y(0))
+    _gain::Mso                        # K(k)
 
-    _state_cache::M
-    _obs_cache::M
+    _state_cache::Mss
+    _obs_cache::Mos
 
     logconst::F
 
-    function KalmanFilter{M, V, F}(
+    function KalmanFilter{Mss, Mos, Moo, Mso, Vs, Vo, F}(
         statesize::Int,
         obssize::Int,
-        state_transition_model::M,
-        state_transition_covariance::M,
-        observation_model::M,
-        observation_covariance::M,
-        state_estimate::V,
-        state_estimate_covariance::M,
-        predicted_state::V,
-        predicted_state_covariance::M,
-        _residual::V,
-        _residual_covariance::M,
-        _gain::M,
-        _state_cache::M,
-        _obs_cache::M,
+        state_transition_model::Mss,
+        state_transition_covariance::Mss,
+        observation_model::Mos,
+        observation_covariance::Moo,
+        state_estimate::Vs,
+        state_estimate_covariance::Mss,
+        predicted_state::Vs,
+        predicted_state_covariance::Mss,
+        _residual::Vo,
+        _residual_covariance::Moo,
+        _gain::Mso,
+        _state_cache::Mss,
+        _obs_cache::Mos,
         logconst::F,
-    ) where {M<:AbstractMatrix, V<:AbstractVector, F<:AbstractFloat} 
+    ) where {
+        Mss<:AbstractMatrix{F}, Mos<:AbstractMatrix{F}, Moo<:AbstractMatrix{F}, Mso<:AbstractMatrix{F}, 
+        Vs<:AbstractVector{F}, Vo<:AbstractVector{F}
+    } where {F<:AbstractFloat}
         @assert (statesize
                 ==size(state_transition_model,1)
                 ==size(state_transition_model,2)
@@ -63,7 +70,7 @@ struct KalmanFilter{M<:AbstractMatrix, V<:AbstractVector, F<:AbstractFloat}
                     ==size(_residual_covariance,2)
                     ==size(_gain,2)
                     ==size(_obs_cache,1))
-        return new{M, V, F}(
+        return new{Mss, Mos, Moo, Mso, Vs, Vo, F}(
             statesize,
             obssize,
             state_transition_model,
@@ -84,22 +91,26 @@ struct KalmanFilter{M<:AbstractMatrix, V<:AbstractVector, F<:AbstractFloat}
     KalmanFilter(
         statesize::Int,
         obssize::Int,
-        state_transition_model::M,
-        state_transition_covariance::M,
-        observation_model::M,
-        observation_covariance::M,
-        state_estimate::V,
-        state_estimate_covariance::M,
-        predicted_state::V,
-        predicted_state_covariance::M,
-        _residual::V,
-        _residual_covariance::M,
-        _gain::M,
-        _state_cache::M,
-        _obs_cache::M,
+        state_transition_model::Mss,
+        state_transition_covariance::Mss,
+        observation_model::Mos,
+        observation_covariance::Moo,
+        state_estimate::Vs,
+        state_estimate_covariance::Mss,
+        predicted_state::Vs,
+        predicted_state_covariance::Mss,
+        _residual::Vo,
+        _residual_covariance::Moo,
+        _gain::Mso,
+        _state_cache::Mss,
+        _obs_cache::Mos,
         logconst::F,
-    ) where {M<:AbstractMatrix, V<:AbstractVector, F<:AbstractFloat} =
-        KalmanFilter{M, V, F}(
+    ) where {
+        Mss<:AbstractMatrix{F}, Mos<:AbstractMatrix{F}, Moo<:AbstractMatrix{F}, Mso<:AbstractMatrix{F}, 
+        Vs<:AbstractVector{F}, Vo<:AbstractVector{F}} where {
+            F<:AbstractFloat
+    } =
+        KalmanFilter{Mss, Mos, Moo, Mso, Vs, Vo, F}(
             statesize,
             obssize,
             state_transition_model,
@@ -118,36 +129,47 @@ struct KalmanFilter{M<:AbstractMatrix, V<:AbstractVector, F<:AbstractFloat}
             logconst,)
 end
 
-function paramtype(kf::KalmanFilter)
-    return eltype(kf.observation_covariance)
+function paramtype(kf::KalmanFilter{Mss, Mos, Moo, Mso, Vs, Vo, F}) where {Mss, Mos, Moo, Mso, Vs, Vo, F}
+    return F
+end
+
+function similar_maybestatic(array)
+    return similar(array)
+end
+function similar_maybestatic(array, dims...)
+    if StaticArrays.isstatic(array)
+        return similar(array, Size(dims...))
+    else
+        return similar(array, dims...)
+    end
 end
 
 function KalmanFilter(
-    prior_state::V,
-    prior_state_covariance::M,
-    state_transition_model::M, 
-    state_transition_covariance::M,
-    observation_model::M,
-    observation_covariance::M,
-) where {V, M}
+    prior_state::Vs,
+    prior_state_covariance::Mss,
+    state_transition_model::Mss, 
+    state_transition_covariance::Mss,
+    observation_model::Mos,
+    observation_covariance::Moo,
+) where {Vs<:AbstractVector{F}, Mss<:AbstractMatrix{F}, Mos<:AbstractMatrix{F}, Moo<:AbstractMatrix{F}} where {F<:AbstractFloat}
     obssize, statesize = size(observation_model)
 
-    _state_cache = similar(state_transition_covariance, statesize, statesize)
-    _obs_cache = similar(state_transition_covariance, obssize, statesize)
+    _state_cache = similar_maybestatic(state_transition_covariance, statesize, statesize)
+    _obs_cache = similar_maybestatic(state_transition_covariance, obssize, statesize)
 
-    state_estimate = similar(state_transition_model, statesize)
+    state_estimate = similar_maybestatic(state_transition_model, statesize)
     state_estimate .= prior_state
 
-    state_estimate_covariance = similar(state_transition_covariance)
+    state_estimate_covariance = similar_maybestatic(state_transition_covariance)
     state_estimate_covariance .= prior_state_covariance
 
-    predicted_state = similar(state_transition_model, statesize)
+    predicted_state = similar_maybestatic(state_transition_model, statesize)
 
-    predicted_state_covariance = similar(state_transition_covariance)
+    predicted_state_covariance = similar_maybestatic(state_transition_covariance)
 
-    _residual = similar(state_transition_model, obssize)
-    _residual_covariance = similar(state_transition_covariance, obssize, obssize)
-    _gain = similar(state_transition_covariance, statesize, obssize)
+    _residual = similar_maybestatic(state_transition_model, obssize)
+    _residual_covariance = similar_maybestatic(state_transition_covariance, obssize, obssize)
+    _gain = similar_maybestatic(state_transition_covariance, statesize, obssize)
 
     logconst = eltype(state_transition_covariance)(-obssize/2*log(2*pi))
 

@@ -5,6 +5,7 @@ using Reexport
 using Random
 using Distributions
 using LinearAlgebra
+using StaticArrays
 Reexport.@reexport using MultitypeBranchingProcesses
 Reexport.@reexport using ParticleFilter
 Reexport.@reexport using KalmanFilters

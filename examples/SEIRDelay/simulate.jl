@@ -21,6 +21,7 @@ function main(args)
     model, param_seq = makemodel(params)
     mtbp = model.stateprocess
 
+    println("MTBP prior to simulation:")
     println(mtbp)
 
     init!(rng, mtbp)
@@ -54,6 +55,10 @@ function main(args)
             writeparticle(io, mtbp.state, t)
         end
     end
+
+    println("MTBP after to simulation:")
+    println(mtbp)
+
     return 0
 end
 

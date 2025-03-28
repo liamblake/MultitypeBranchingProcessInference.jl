@@ -136,14 +136,14 @@ function SEIR_delay(
     dist = MTBPDiscreteDistribution(infectious_state_cdf, infectious_state_events)
     push!(progeny_dists, dist)
 
-    # first observation state
-    dist = dummy_mtbp_discrete_distribution(ntypes, typeof(infection_event), T)
-    push!(progeny_dists, dist)
-
-    # Notification state
+    # Observation state
     # observation_state_cdf = T[1]
     observation_state_events = [notification_event]
     dist = MTBPDiscreteDistribution(T[1], observation_state_events)
+    push!(progeny_dists, dist)
+
+    # Notification state - persist throughout simulation
+    dist = dummy_mtbp_discrete_distribution(ntypes, typeof(infection_event), T)
     push!(progeny_dists, dist)
 
     # Immigration
@@ -192,7 +192,8 @@ function SEIR_delay(
         observation_probablity,
         notification_rate,
         immigration_rates,
-        initial_dist)
+        initial_dist
+    )
 end
 
 
@@ -223,7 +224,12 @@ function param_map!(
     for i in infectious_states
         mtbpparams.rates[i] = beta + lambda
     end
-    mtbpparams.rates[end-2] = zero(eltype(mtbpparams.rates))
+    # Count state
+    mtbpparams.rates[end-2] = notification_rate # CDF does not change
+    # Notification state - always dies with rate 0
+    mtbpparams.rates[end-1] = zero(eltype(mtbpparams.rates))
+
+    # Immigration state
     mtbpparams.rates[end] = sum(immigration)
 
     p = beta / (beta + lambda)
@@ -240,9 +246,6 @@ function param_map!(
         mtbpparams.cdfs[end] .= cumsum(immigration)
         mtbpparams.cdfs[end] ./= mtbpparams.cdfs[end][end]
     end
-
-    # Notification delay
-    mtbpparams.rates[end-1] = notification_rate
 
     return mtbpparams
 end
@@ -307,6 +310,13 @@ function makemodel(config)
         push!(param_seq.seq, mtbpparams)
     end
     return model, param_seq
+end
+
+function pathtodailycases(path, cases_idx)
+    cumulative_cases = [[state[cases_idx]] for state in path]
+    daily_cases = diff(cumulative_cases)
+    cases = [[cumulative_cases[1]]; daily_cases]
+    return cases
 end
 
 function reset_obs_state_iter_setup!(

@@ -1,0 +1,16 @@
+[INFO] Iteration 16384.
+[INFO] Current time 2025-03-31T13:55:34.652.
+[INFO] Elapsed time 54.374534130096436 seconds.
+[INFO] Acceptance ratio 0.693359375.
+[INFO] Number of proposed samples with infinite loglikelihood: 0 of the last 16384 iterations.
+[INFO] Remaining time 604745.6254558563 seconds
+[INFO] Remaining iterations 814688
+[INFO] Current sample [0.3617898787266509, 0.3322613519069407, -34.69147768071698].
+[INFO] Current loglikelihood -35.49032706382895.
+[INFO] Adapting proposal at iteration 16384.
+[INFO] Proposal at iteration 16384: MutableMvNormal{FullNormal}(FullNormal(
+dim: 2
+μ: [0.3617898787266509, 0.3322613519069407]
+Σ: [0.05061392720818325 0.04789099720571671; 0.04789099720571671 0.051391122606265965]
+)
+)

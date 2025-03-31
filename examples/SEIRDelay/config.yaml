@@ -26,16 +26,17 @@ model:
     cov: [1.0]
 
 inference:
+  data: "simulated"
   likelihood_approx:
-    method: kalman_filter
+    method: particle_filter
     switch:
       threshold: 20
       seed: 1516171819
     particle_filter:
       seed: 67890
       nparticles: 256
-      multithreadded: false
-  parmaeters: ["R_0"] # Parameters to estimate - others are assumed fixed using model config
+      multithreaded: false
+  parameters: ["R_0"] # Parameters to estimate - others are assumed fixed using model config
   prior_parameters:
     R_0:
       type: gaussian_processes
@@ -50,13 +51,13 @@ inference:
   mh_config:
     seed: 1011121314
     buffer_size: 16384
-    outfilename: data/seir_delay_kalman_param_samples.f64_array.bin
+    outfilename: data/seir_delay_particle_param_samples.f64_array.bin
     max_iters: 831072
-    nparams: 16
+    nparams: 2
     max_time_sec: 604800.0 # 1 week!
-    init_sample: [1.0, 1.0]
+    init_sample: [2.0, 2.0]
     verbose: true
-    infofilename: data/seir_delay_kalman.info.txt
+    infofilename: data/seir_delay_particle.info.txt
     adaptive: true
     nadapt: 131072
     adapt_cov_scale: 0.34

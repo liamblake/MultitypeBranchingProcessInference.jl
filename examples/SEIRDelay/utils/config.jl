@@ -226,7 +226,7 @@ function param_map!(
     end
     # Count state
     mtbpparams.rates[end-2] = notification_rate # CDF does not change
-    # Notification state - always dies with rate 0
+    # Notification state - death rate always 0
     mtbpparams.rates[end-1] = zero(eltype(mtbpparams.rates))
 
     # Immigration state
@@ -365,7 +365,7 @@ function makeloglikelihood(observations, config)
     elseif config["inference"]["likelihood_approx"]["method"] == "particle_filter"
         pf_rng = makerng(config["inference"]["likelihood_approx"]["particle_filter"]["seed"])
         nparticles = config["inference"]["likelihood_approx"]["particle_filter"]["nparticles"]
-        ismultithreadded = config["inference"]["likelihood_approx"]["particle_filter"]["multithreadding"]
+        ismultithreadded = config["inference"]["likelihood_approx"]["particle_filter"]["multithreaded"]
 
         approx = ParticleFilterApproximation(model, pf_rng, nparticles, ismultithreadded)
 
@@ -395,13 +395,22 @@ function makeloglikelihood(observations, config)
         )
     end
 
-    curr_params = zeros(paramtype(model), 3)
-    nparam_per_stage = 3
+    # Assumes only R0 is varying and estimated
+    curr_params = zeros(paramtype(model), 5)
+
+    # Fixed params - take directly from config
+    T_I = seirconfig["T_I"]
+    T_E = seirconfig["T_E"]
+    T_D = seirconfig["T_D"]
 
     loglikelihood = (pars) -> begin
-        curr_params[2:nparam_per_stage] .= pars[1:(nparam_per_stage-1)]
+        # println("Proposed pars: ", pars)
         for i in eachindex(param_seq.seq)
-            curr_params[1] = pars[i-1+nparam_per_stage]
+            curr_params[1] = pars[i]
+            curr_params[2] = T_E[i]
+            curr_params[3] = T_I[i]
+            curr_params[4] = T_D[i]
+            # println(curr_params)
             llparam_map!(param_seq[i], curr_params)
         end
 
@@ -435,78 +444,83 @@ function makeconstpriordists(config)
 end
 
 function makeprior(config)
-    const_prior_dists = makeconstpriordists(config)
 
-    if config["inference"]["prior_parameters"]["R_0"]["type"] == "random_walk_gamma_initial_dist"
-        init_dist = Gamma(config["inference"]["prior_parameters"]["R_0"]["shape"],
-            config["inference"]["prior_parameters"]["R_0"]["scale"])
-        sigma = config["inference"]["prior_parameters"]["R_0"]["sigma"]
-        R0prior = RandomWalkGammaInitialDistR0Prior(init_dist, sigma)
-        prior_logpdf = (params) -> begin
-            val = zero(eltype(params))
-            for i in eachindex(const_prior_dists)
-                val += logpdf(const_prior_dists[i], params[i])
-            end
-            val += logpdf(R0prior, params[(length(const_prior_dists)+1):end])
-            return val
-        end
-    elseif config["inference"]["prior_parameters"]["R_0"]["type"] == "gaussian_processes"
-        if config["inference"]["prior_parameters"]["R_0"]["covariance_function"] == "exponential"
-            cov_fun = GP.ExponentialCovarianceFunction(
-                config["inference"]["prior_parameters"]["R_0"]["sigma"]^2,
-                config["inference"]["prior_parameters"]["R_0"]["ell"],
-            )
-            timestamps = Matrix(reshape(Float64.(config["model"]["stateprocess"]["params"]["timestamps"]), 1, :))
-            mu = config["inference"]["prior_parameters"]["R_0"]["mu"]
-            R0prior = GP.GaussianProcess(timestamps, mu, cov_fun)
-        elseif config["inference"]["prior_parameters"]["R_0"]["covariance_function"] == "squared_exponential"
-            cov_fun = GP.SquaredExponentialCovarianceFunction(
-                config["inference"]["prior_parameters"]["R_0"]["sigma"]^2,
-                config["inference"]["prior_parameters"]["R_0"]["ell"],
-            )
-            timestamps = Matrix(reshape(Float64.(config["model"]["stateprocess"]["params"]["timestamps"]), 1, :))
-            mu = config["inference"]["prior_parameters"]["R_0"]["mu"]
-            R0prior = GP.GaussianProcess(timestamps, mu, cov_fun)
-        else
-            error("Unknown covariance function in config")
-        end
-        if config["inference"]["prior_parameters"]["R_0"]["transform"] == "log"
-            cache = zeros(Float64, length(timestamps))
-            gpmemcache = GP.gp_logpdf_memcache(R0prior, cache)
-            prior_logpdf = (params) -> begin
-                if any(p -> p <= zero(p), params)
-                    return -Inf
-                end
-                val = zero(eltype(params))
-                for i in eachindex(const_prior_dists)
-                    val += logpdf(const_prior_dists[i], params[i])
-                end
-                for i in Iterators.drop(eachindex(params), length(const_prior_dists))
-                    cache[i-length(const_prior_dists)] = log(params[i])
-                end
-                val += GP.logpdf(R0prior, cache, gpmemcache)
-                val -= sum(cache)
-                return val
-            end
-        elseif config["inference"]["prior_parameters"]["R_0"]["transform"] == "none"
-            cache = zeros(Float64, length(timestamps))
-            gpmemcache = GP.gp_logpdf_memcache(R0prior, cache)
+    # TODO: Accept a list of parameters and constant distributions!
+    # const_prior_dists = makeconstpriordists(config)
+    const_prior_dists = tuple([]...)
+
+    if "R_0" in config["inference"]["parameters"]
+        if config["inference"]["prior_parameters"]["R_0"]["type"] == "random_walk_gamma_initial_dist"
+            init_dist = Gamma(config["inference"]["prior_parameters"]["R_0"]["shape"],
+                config["inference"]["prior_parameters"]["R_0"]["scale"])
+            sigma = config["inference"]["prior_parameters"]["R_0"]["sigma"]
+            R0prior = RandomWalkGammaInitialDistR0Prior(init_dist, sigma)
             prior_logpdf = (params) -> begin
                 val = zero(eltype(params))
                 for i in eachindex(const_prior_dists)
                     val += logpdf(const_prior_dists[i], params[i])
                 end
-                for i in Iterators.drop(eachindex(params), length(const_prior_dists))
-                    cache[i-length(const_prior_dists)] = params[i]
-                end
-                val += GP.logpdf(R0prior, cache, gpmemcache)
+                val += logpdf(R0prior, params[(length(const_prior_dists)+1):end])
                 return val
             end
+        elseif config["inference"]["prior_parameters"]["R_0"]["type"] == "gaussian_processes"
+            if config["inference"]["prior_parameters"]["R_0"]["covariance_function"] == "exponential"
+                cov_fun = GP.ExponentialCovarianceFunction(
+                    config["inference"]["prior_parameters"]["R_0"]["sigma"]^2,
+                    config["inference"]["prior_parameters"]["R_0"]["ell"],
+                )
+                timestamps = Matrix(reshape(Float64.(config["model"]["stateprocess"]["params"]["timestamps"]), 1, :))
+                mu = config["inference"]["prior_parameters"]["R_0"]["mu"]
+                R0prior = GP.GaussianProcess(timestamps, mu, cov_fun)
+            elseif config["inference"]["prior_parameters"]["R_0"]["covariance_function"] == "squared_exponential"
+                cov_fun = GP.SquaredExponentialCovarianceFunction(
+                    config["inference"]["prior_parameters"]["R_0"]["sigma"]^2,
+                    config["inference"]["prior_parameters"]["R_0"]["ell"],
+                )
+                timestamps = Matrix(reshape(Float64.(config["model"]["stateprocess"]["params"]["timestamps"]), 1, :))
+                mu = config["inference"]["prior_parameters"]["R_0"]["mu"]
+                R0prior = GP.GaussianProcess(timestamps, mu, cov_fun)
+            else
+                error("Unknown covariance function in config")
+            end
+            if config["inference"]["prior_parameters"]["R_0"]["transform"] == "log"
+                cache = zeros(Float64, length(timestamps))
+                gpmemcache = GP.gp_logpdf_memcache(R0prior, cache)
+                prior_logpdf = (params) -> begin
+                    if any(p -> p <= zero(p), params)
+                        return -Inf
+                    end
+                    val = zero(eltype(params))
+                    for i in eachindex(const_prior_dists)
+                        val += logpdf(const_prior_dists[i], params[i])
+                    end
+                    for i in Iterators.drop(eachindex(params), length(const_prior_dists))
+                        cache[i-length(const_prior_dists)] = log(params[i])
+                    end
+                    val += GP.logpdf(R0prior, cache, gpmemcache)
+                    val -= sum(cache)
+                    return val
+                end
+            elseif config["inference"]["prior_parameters"]["R_0"]["transform"] == "none"
+                cache = zeros(Float64, length(timestamps))
+                gpmemcache = GP.gp_logpdf_memcache(R0prior, cache)
+                prior_logpdf = (params) -> begin
+                    val = zero(eltype(params))
+                    for i in eachindex(const_prior_dists)
+                        val += logpdf(const_prior_dists[i], params[i])
+                    end
+                    for i in Iterators.drop(eachindex(params), length(const_prior_dists))
+                        cache[i-length(const_prior_dists)] = params[i]
+                    end
+                    val += GP.logpdf(R0prior, cache, gpmemcache)
+                    return val
+                end
+            else
+                error("Unkown R_0 prior specification, expected \"log\" or \"none\", got $(config["inference"]["prior_parameters"]["R_0"]["transform"])")
+            end
         else
-            error("Unkown R_0 prior specification, expected \"log\" or \"none\", got $(config["inference"]["prior_parameters"]["R_0"]["transform"])")
+            error("Unknown prior R0 specififcation")
         end
-    else
-        error("Unknown prior R0 specififcation")
     end
     return prior_logpdf
 end

@@ -403,13 +403,15 @@ function makeloglikelihood(observations, config)
     T_E = seirconfig["T_E"]
     T_D = seirconfig["T_D"]
 
+    curr_params[2:4] = [T_I[1], T_E[1], T_D[1]]
+
     loglikelihood = (pars) -> begin
         # println("Proposed pars: ", pars)
         for i in eachindex(param_seq.seq)
             curr_params[1] = pars[i]
-            curr_params[2] = T_E[i]
-            curr_params[3] = T_I[i]
-            curr_params[4] = T_D[i]
+            # curr_params[2] = T_E[i]
+            # curr_params[3] = T_I[i]
+            # curr_params[4] = T_D[i]
             # println(curr_params)
             llparam_map!(param_seq[i], curr_params)
         end

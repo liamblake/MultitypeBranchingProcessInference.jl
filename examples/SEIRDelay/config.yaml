@@ -12,15 +12,15 @@ model:
     params:
       E_state_count: 1
       I_state_count: 1
-      timestamps: [0.0, 9.0]
-      R_0: [2.0, 0.5] # Reproduction number
-      T_E: [5.0, 5.0] # Mean time in E
-      T_I: [8.0, 8.0] # Mean time in I
-      T_D: [5.0, 5.0] # Mean time between count and notification
+      timestamps: [0.0, 7.0, 14.0, 21.0, 28.0]
+      R_0: [2.0, 2.0, 0.5, 0.5, 0.5] # Reproduction number
+      T_E: [5.0, 5.0, 5.0, 5.0, 5.0] # Mean time in E
+      T_I: [8.0, 8.0, 8.0, 8.0, 8.0] # Mean time in I
+      T_D: [5.0, 5.0, 5.0, 5.0, 5.0] # Mean time between count and notification
       observation_probability: 1.0
       immigration_rate: [0.0, 0.0]
     # [E, I, O, N, R]
-    initial_state: [10, 0, 0, 0, 0]
+    initial_state: [30, 30, 0, 0, 0]
   observation:
     mean: [0.0]
     cov: [1.0]
@@ -28,7 +28,7 @@ model:
 inference:
   data: "simulated"
   likelihood_approx:
-    method: particle_filter
+    method: kalman_filter
     switch:
       threshold: 20
       seed: 1516171819
@@ -41,23 +41,23 @@ inference:
     R_0:
       type: gaussian_processes
       covariance_function: exponential
-      mu: [0.0, 0.0]
+      mu: [0.0, 0.0, 0.0, 0.0, 0.0]
       ell: 136.47008022356596
       sigma: 0.7
       transform: log
   proposal_parameters:
-    mean: [0.0, 0.0]
-    cov: [0.001, 0.0, 0.0, 0.001]
+    mean: [0.0, 0.0, 0.0, 0.0, 0.0]
+    cov: [0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001]
   mh_config:
     seed: 1011121314
     buffer_size: 16384
-    outfilename: data/seir_delay_particle_param_samples.f64_array.bin
+    outfilename: data/seir_delay_kalman_param_samples.f64_array.bin
     max_iters: 831072
-    nparams: 2
+    nparams: 5
     max_time_sec: 604800.0 # 1 week!
-    init_sample: [2.0, 2.0]
+    init_sample: [2.0, 2.0, 2.0, 2.0, 2.0]
     verbose: true
-    infofilename: data/seir_delay_particle.info.txt
+    infofilename: data/seir_delay_kalman.info.txt
     adaptive: true
     nadapt: 131072
     adapt_cov_scale: 0.34

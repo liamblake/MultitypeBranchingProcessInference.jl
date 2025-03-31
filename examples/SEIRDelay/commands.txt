@@ -3,3 +3,5 @@ julia --project=../. simulate.jl config.yaml
 julia --project=../. plotobservations.jl config.yaml
 
 julia --project=../. inference.jl config.yaml
+
+julia --project=../. analysis.jl config.yaml "Kalman Filter=data/seir_delay_kalman_param_samples.f64_array.bin"

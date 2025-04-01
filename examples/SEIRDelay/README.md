@@ -1,3 +1,5 @@
-Simple SEIR model with delayed detections
+Simple SEIR model with delayed detections.
+
+
 
 

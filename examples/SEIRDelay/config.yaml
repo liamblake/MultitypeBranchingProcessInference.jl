@@ -5,18 +5,19 @@ simulation:
   seed: 12345
   outfilename: data/seir_delay_sim_particles.Int64.bin
   tstep: 1
-  nsteps: 30
+  nsteps: 50
+  # Needs to be a long enough timeframe for the delayed counts to reflect the change in R0 value
 
 model:
   stateprocess:
     params:
       E_state_count: 1
       I_state_count: 1
-      timestamps: [0.0, 7.0, 14.0, 21.0, 28.0]
-      R_0: [2.0, 2.0, 0.5, 0.5, 0.5] # Reproduction number
-      T_E: [5.0, 5.0, 5.0, 5.0, 5.0] # Mean time in E
-      T_I: [8.0, 8.0, 8.0, 8.0, 8.0] # Mean time in I
-      T_D: [5.0, 5.0, 5.0, 5.0, 5.0] # Mean time between count and notification
+      timestamps: [0.0, 7.0, 14.0, 21.0, 28.0, 35.0, 42.0, 49.0]
+      R_0: [2.0, 2.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5] # Reproduction number
+      T_E: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0] # Mean time in E
+      T_I: [8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0] # Mean time in I
+      T_D: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0] # Mean time between count and notification
       observation_probability: 1.0
       immigration_rate: [0.0, 0.0]
     # [E, I, O, N, R]
@@ -27,8 +28,10 @@ model:
 
 inference:
   data: "simulated"
+    # filename: data/epinow_example.csv
+    # first_observation_time: 1.0
   likelihood_approx:
-    method: kalman_filter
+    method: particle_filter
     switch:
       threshold: 20
       seed: 1516171819
@@ -41,24 +44,24 @@ inference:
     R_0:
       type: gaussian_processes
       covariance_function: exponential
-      mu: [0.0, 0.0, 0.0, 0.0, 0.0]
+      mu: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
       ell: 136.47008022356596
       sigma: 0.7
       transform: log
   proposal_parameters:
-    mean: [0.0, 0.0, 0.0, 0.0, 0.0]
-    cov: [0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001]
+    mean: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    cov: [0.07289521696952668, -0.0039602214855074475, -0.0026639983703192743, -0.000698285302469736, -0.00013877156174886015, -2.521835311809239e-5, 6.141709436540823e-5, 0.000279285066379567, -0.0039602214855074475, 0.03639344076262656, 0.003988771075748496, 0.0006966994475529037, 0.0001168497296624065, -0.00024673118938980807, -0.00028239860464746713, -8.412528972368828e-5, -0.0026639983703192743, 0.003988771075748496, 0.014433184538854687, 0.0041884967367812964, 0.0017292214822878776, 0.001117207722460394, 0.0009158625956053905, 0.0008927822184764165, -0.000698285302469736, 0.0006966994475529037, 0.0041884967367812964, 0.008922743829467726, 0.004576585085473421, 0.0032126726588955403, 0.002880426702318012, 0.0029397653875128144, -0.00013877156174886015, 0.0001168497296624065, 0.0017292214822878776, 0.004576585085473421, 0.009605189067959131, 0.007032405602267467, 0.006317234154163597, 0.006406582988397117, -2.521835311809239e-5, -0.00024673118938980807, 0.001117207722460394, 0.0032126726588955403, 0.007032405602267467, 0.013507222144443559, 0.012351692227576675, 0.012576754466291857, 6.141709436540823e-5, -0.00028239860464746713, 0.0009158625956053905, 0.002880426702318012, 0.006317234154163597, 0.012351692227576675, 0.021710371658644822, 0.021949287742608275, 0.000279285066379567, -8.412528972368828e-5, 0.0008927822184764165, 0.0029397653875128144, 0.006406582988397117, 0.012576754466291857, 0.021949287742608275, 0.03467998004637194]
   mh_config:
     seed: 1011121314
     buffer_size: 16384
-    outfilename: data/seir_delay_kalman_param_samples.f64_array.bin
+    outfilename: data/seir_delay_particle_param_samples.f64_array.bin
     max_iters: 831072
-    nparams: 5
-    max_time_sec: 604800.0 # 1 week!
-    init_sample: [2.0, 2.0, 2.0, 2.0, 2.0]
+    nparams: 8
+    max_time_sec: 1500.0 #604800.0 # 1 week!
+    init_sample: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
     verbose: true
-    infofilename: data/seir_delay_kalman.info.txt
+    infofilename: data/seir_delay_particle.info.txt
     adaptive: true
-    nadapt: 131072
+    nadapt: 10000 #131072
     adapt_cov_scale: 0.34
     continue: false

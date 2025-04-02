@@ -126,7 +126,7 @@ function main(argv)
 
 	caseidentifier = "config_$(argv[1])_$(join(keys(chains), "-"))_data_$(config["inference"]["data"] == "simulated" ? "simulated" : config["inference"]["data"]["filename"])"
 	caseidentifier = replace(caseidentifier,
-		"." => "_", " " => "_", "/" => "_", "\\" => "_")
+		"configs/" => "", "." => "_", " " => "_", "/" => "_", "\\" => "_")
 	for (name, plt) in traceplots
 		figfilename =
 			joinpath(pwd(), "figs", "traceplot_$(name)_$(caseidentifier).$(FIGURE_FILE_EXT)")

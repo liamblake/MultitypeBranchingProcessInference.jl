@@ -58,7 +58,14 @@ function make1dposteriorpdf(chains, paramname, prior = nothing)
 	p = plot(xlabel = L"%$(string(paramname))", ylabel = "Density")
 	chainid = 1
 	for (datasetname, chain) in chains
-		density!(p, chain[paramname]; label = datasetname, linestyle = smap(1), color = cmap(chainid), linewidth = 2)
+		density!(
+			p,
+			chain[paramname];
+			label = datasetname,
+			linestyle = smap(1),
+			color = cmap(chainid),
+			linewidth = 2,
+		)
 		chainid += 1
 	end
 	yl, yh = ylims(p)
@@ -70,7 +77,14 @@ function make1dposteriorpdf(chains, paramname, prior = nothing)
 		chainid += 1
 	end
 	if prior !== nothing
-		plot!(p, x -> Distributions.pdf(prior, x); label = "Prior", color = cmap(chainid + 1), linestyle = smap(3), linewidth = 2)
+		plot!(
+			p,
+			x -> Distributions.pdf(prior, x);
+			label = "Prior",
+			color = cmap(chainid + 1),
+			linestyle = smap(3),
+			linewidth = 2,
+		)
 	end
 	return p
 end
@@ -110,11 +124,12 @@ function main(argv)
 
 	traceplots = maketraceplots(chains)
 
-	caseidentifier = "config_$(argv[1])_$(join(keys(chains), "-"))"
+	caseidentifier = "config_$(argv[1])_$(join(keys(chains), "-"))_data_$(config["inference"]["data"] == "simulated" ? "simulated" : config["inference"]["data"]["filename"])"
 	caseidentifier = replace(caseidentifier,
 		"." => "_", " " => "_", "/" => "_", "\\" => "_")
 	for (name, plt) in traceplots
-		figfilename = joinpath(pwd(), "figs", "traceplot_$(name)_$(caseidentifier).$(FIGURE_FILE_EXT)")
+		figfilename =
+			joinpath(pwd(), "figs", "traceplot_$(name)_$(caseidentifier).$(FIGURE_FILE_EXT)")
 		savefig(plt, figfilename)
 	end
 
@@ -128,15 +143,19 @@ function main(argv)
 		observations = vcat(observations...)
 	else
 		# Otherwise, assume "filename" and "first_observation_time" keys
-		raw_observations = read_observations(joinpath(pwd(), config["inference"]["data"]["filename"]))
-		t = config["inference"]["data"]["first_observation_time"] .+ (0:(length(raw_observations)-1))
+		raw_observations =
+			read_observations(joinpath(pwd(), config["inference"]["data"]["filename"]))
+		t =
+			config["inference"]["data"]["first_observation_time"] .+
+			(0:(length(raw_observations)-1))
 		observations = Observations(t, raw_observations)
 	end
 
 	# Plot R_t for each approximation - compare to the true value if using simulated data.
 	pR0 = plot(xlabel = L"Days $t$", ylabel = L"R_0")
 
-	# Plot KDEs of estimes
+	# Plot KDEs of estimates
+	dcmap = [:red, :blue, :green]
 	kde_scale_factor = 2.0
 	for (k, (datasetname, chain)) in enumerate(chains)
 		kdes = []
@@ -151,27 +170,60 @@ function main(argv)
 
 		# Plot KDEs
 		for i in eachindex(R0idx)
-			# plot!(pR0, model_timestamps[i] .+ kdes[i][2] ./ max_kde * kde_scale_factor, kdes[i][1]; color = :black, label = false)
-			plot!(pR0, model_timestamps[i] .+ kdes[i][2] ./ max_kde * kde_scale_factor, kdes[i][1]; linestyle = smap(k), color = cmap(k), alpha = 0.5, ylabel = L"R_0", side = :right,
-				label = i == firstindex(R0idx) ? datasetname : false, legend = :topright)
+			plot!(
+				pR0,
+				model_timestamps[i] .+ kdes[i][2] ./ max_kde * kde_scale_factor,
+				kdes[i][1];
+				linestyle = smap(k),
+				color = dcmap[k],
+				fill = true,
+				alpha = 0.5,
+				ylabel = L"R_0",
+				side = :right,
+				label = i == firstindex(R0idx) ? datasetname : false,
+				legend = :topleft,
+			)
 		end
 
 	end
 
-	# Reference lines for timestampls
-	for t in model_timestamps
-		vline!(pR0, [t]; color = :gray, linestyle = :dash, label = false)
-	end
 
 	if config["inference"]["data"] == "simulated"
 		# Plot the simulated R_0
-		plot!(pR0, model_timestamps, model_Rt, label = "Simulated", color = :black, seriestype = :steppost)
+		plot!(
+			pR0,
+			model_timestamps,
+			model_Rt,
+			label = "Simulated",
+			color = :black,
+			seriestype = :steppost,
+		)
 	end
 	plot!(pR0, grid = false)
 
-	savefig(pR0, joinpath(pwd(), "figs", "R0_comparison.$(FIGURE_FILE_EXT)"))
+	# Add case counts on second axis
+	ax2 = twinx(pR0)
+	x = t #repeat(t, inner=2)
+	y = observations #repeat(observations, inner=2)
+	plot!(
+		ax2,
+		x,
+		y;
+		color = :grey,
+		label = "Observations",
+		ylabel = "Daily notifications",
+		legend = :topright,
+		seriestype = :steppre,
+	)
 
+	plot!(pR0, xticks = model_timestamps)
 
+	# Reference lines for timestamps
+	for ts in model_timestamps
+		vline!(pR0, [ts]; color = :gray, linestyle = :dash, label = false)
+	end
+
+	savefig(pR0, joinpath(pwd(), "figs", "R0_density_$(caseidentifier).$(FIGURE_FILE_EXT)"))
 
 	return
 end

@@ -1,48 +1,39 @@
 [INFO] Iteration 16384.
-[INFO] Current time 2025-04-01T14:12:26.662.
-[INFO] Elapsed time 556.95578789711 seconds.
-[INFO] Acceptance ratio 0.017578125.
-[INFO] Number of proposed samples with infinite loglikelihood: 343 of the last 16384 iterations.
-[INFO] Remaining time 943.0441989898682 seconds
+[INFO] Current time 2025-04-01T19:25:13.873.
+[INFO] Elapsed time 2170.214453935623 seconds.
+[INFO] Acceptance ratio 0.05230712890625.
+[INFO] Number of proposed samples with infinite loglikelihood: 331 of the last 16384 iterations.
+[INFO] Remaining time 6829.785539150238 seconds
 [INFO] Remaining iterations 814688
-[INFO] Current sample [2.2704810906307475, 1.1888101761821197, 0.7641129420798815, 0.5286721390730142, 0.41363716750687024, 0.5593773475359514, 0.531034058293612, 0.4629702218044485, -122.86023022017856].
-[INFO] Current loglikelihood -119.40260292211472.
-[INFO] Iteration 32768.
-[INFO] Current time 2025-04-01T14:21:46.762.
-[INFO] Elapsed time 1117.018760919571 seconds.
-[INFO] Acceptance ratio 0.01458740234375.
-[INFO] Number of proposed samples with infinite loglikelihood: 280 of the last 16384 iterations.
-[INFO] Remaining time 382.9812331199646 seconds
-[INFO] Remaining iterations 798304
-[INFO] Current sample [2.2748824148637206, 1.2636139589895865, 0.5968315172907243, 0.47110743321825466, 0.45777038396176717, 0.47577718679776515, 0.6975626140112241, 0.5625386627103666, -126.30886522914805].
-[INFO] Current loglikelihood -120.52096579905779.
-[INFO] Iteration 43870.
-[INFO] Current time 2025-04-01T14:28:09.750.
-[INFO] Elapsed time 1500.03453707695 seconds.
-[INFO] Acceptance ratio 0.012610340479192938.
-[INFO] Number of proposed samples with infinite loglikelihood: 285 of the last 11102 iterations.
-[INFO] Remaining time -0.03454399108886719 seconds
-[INFO] Remaining iterations 787202
-[INFO] Current sample [2.3508421146013676, 1.4975005518062283, 0.7345635304976239, 0.5808913853289314, 0.5831624917606135, 0.3408600569045016, 0.3734443470990536, 0.39041964118235356, -123.87091645092875].
-[INFO] Current loglikelihood -119.14796350176607.
+[INFO] Current sample [2.926925198081648, 1.7134190969090832, 0.5668912731044013, 0.5678420468460716, 0.4843439006346544, 0.45748189942412554, 0.46270240167231264, 0.6033047032777888, -132.050823822205].
+[INFO] Current loglikelihood -121.19801535515046.
+[INFO] Iteration 29126.
+[INFO] Current time 2025-04-01T21:20:08.099.
+[INFO] Elapsed time 9064.40747499466 seconds.
+[INFO] Acceptance ratio 0.04049599748862031.
+[INFO] Number of proposed samples with infinite loglikelihood: 309 of the last 12742 iterations.
+[INFO] Remaining time -64.40748190879822 seconds
+[INFO] Remaining iterations 801946
+[INFO] Current sample [2.779304948233832, 1.5224456596431195, 0.8317234007597919, 0.4049081166709327, 0.4689606051995367, 0.3597405900592327, 0.31366980602043504, 0.27547050596895506, -129.6722325596476].
+[INFO] Current loglikelihood -122.0194529366454.
 [INFO] END STATUS
-[INFO]     current time 2025-04-01T14:28:09.809.
-[INFO]     elapsed time: 1500.0653848648071 seconds.
+[INFO]     current time 2025-04-01T21:20:08.179.
+[INFO]     elapsed time: 9064.487504005432 seconds.
 [INFO]     timeout: true.
 [INFO]     max iters reached: false.
-[INFO]     number of unique samples: 527.
-[INFO]     number of proposed samples with infinite loglikelihood: 623
+[INFO]     number of unique samples: 857.
+[INFO]     number of proposed samples with infinite loglikelihood: 331
 [INFO]     samples filesize:
 [INFO]         header: 3 (24 bytes).
-[INFO]         samples: 49353.75 (3158640 bytes).
-[INFO]         total: 3158664 bytes (eof at 3158664).
+[INFO]         samples: 32766.75 (2097072 bytes).
+[INFO]         total: 2097096 bytes (eof at 2097096).
 [INFO]     MH Config:
 [INFO]         samples_write_buffer_size: 16384
 [INFO]         samples_write_file: data/seir_delay_particle_param_samples.f64_array.bin
 [INFO]         maxiters: 831072
 [INFO]         nparams: 8
-[INFO]         max_time_sec: 1500.0
-[INFO]         init_sample: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+[INFO]         max_time_sec: 9000.0
+[INFO]         init_sample: [2.2452531065236254, 1.5196937002271251, 0.7934667223380545, 0.5293342419835094, 0.4561447155542227, 0.4426255104899072, 0.45875640813702034, 0.4871756859624109]
 [INFO]         verbose: true
 [INFO]         info_file: data/seir_delay_particle.info.txt
 [INFO]         adaptive: true

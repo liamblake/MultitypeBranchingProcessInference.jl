@@ -143,12 +143,12 @@ function main(argv)
 		observations = vcat(observations...)
 	else
 		# Otherwise, assume "filename" and "first_observation_time" keys
-		raw_observations =
+		observations =
 			read_observations(joinpath(pwd(), config["inference"]["data"]["filename"]))
 		t =
 			config["inference"]["data"]["first_observation_time"] .+
-			(0:(length(raw_observations)-1))
-		observations = Observations(t, raw_observations)
+			(0:(length(observations)-1))
+		observations = vcat(observations...)
 	end
 
 	# Plot R_t for each approximation - compare to the true value if using simulated data.
